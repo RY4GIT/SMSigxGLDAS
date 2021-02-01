@@ -4,7 +4,7 @@
 
     % Set path
   %  in_path = "G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\0_data\";
-   % out_path = "G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\2_out\";
+   out_path = "G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\5_out";
    cd("G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\3_codes_plotters");
 
     % Site information
@@ -51,10 +51,9 @@
     end
 
 % Align all the reuslts
-% Initialize the struct
-results_timing.depth = []; results_timing.station = []; results_timing.type = []; results_timing.oz = []; results_timing.gl = []; results_timing.residual = [];
-results_duration.depth = []; results_duration.station = []; results_duration.type = []; results_duration.oz = []; results_duration.gl = []; results_duration.residual = [];
 
+% Initialize the struct for seasonal transition timings
+results_timing.depth = []; results_timing.station = []; results_timing.type = []; results_timing.oz = []; results_timing.gl = []; results_timing.residual = [];
     % loop for the depth
     for k = 1:size(depth,2)
     % loop for the station
@@ -70,7 +69,7 @@ results_duration.depth = []; results_duration.station = []; results_duration.typ
 %         "Wet to dry (p)"; "Wet to dry (l)"; ...
 %         "Dry to wet (p)"; "Dry to wet (l)"];
             % Oznet
-            s3 = [];
+%             s3 = [];
             
             % loop for seasonal transition date signatures 
             
@@ -106,27 +105,43 @@ results_duration.depth = []; results_duration.station = []; results_duration.typ
                                 results_timing.oz = [results_timing.oz; selected_sig_oz(s2)];
                                 results_timing.gl = [results_timing.gl; selected_sig_gl(s2)]; 
                                 results_timing.residual = [results_timing.residual; days(datetime(selected_sig_gl(s2)) - datetime(selected_sig_oz(s2)))];
-                                s3 = [s3;s2];
+%                                 s3 = [s3;s2];
                             % end
                         end
                     end
                 end
-                
+            end
+        end
+    end
+            
                 clear selected_sig_gl selected_sig_oz
                 
-                % look for duration signatures
-                if s == 1 || s == 2 || s ==5 || s==6 
-                    switch s
-                        case 1
-                            s4 = 9; %wet2dry(p)
-                        case 2
-                            s4 = 10; %wet2dry(l)
-                        case 5
-                            s4 = 11; %dry2wet(p)
-                        case 6
-                            s4 = 12; %dry2wet(l)
-                    end
-                    
+
+% Initialize the struct for seasonal transition duration
+results_duration.depth = []; results_duration.station = []; results_duration.type = []; results_duration.oz = []; results_duration.gl = []; results_duration.residual = [];
+    % loop for the depth
+    for k = 1:size(depth,2)
+    % loop for the station
+        for n = 1:nstation 
+            statement = sprintf('Currently processing the data at depth %d cm, station %d', depth(k), n);
+            disp(statement)
+            
+            %% Get corresponding signature values
+%     sig_abb2 = ["Wet end (p)"; "Wet end (l)"; ...
+%         "Dry start (p)"; "Dry start (l)"; ...
+%         "Dry end (p)"; "Dry end (l)"; ...
+%         "Wet start (p)"; "Wet start (l)"; ...
+%         "Wet to dry (p)"; "Wet to dry (l)"; ...
+%         "Dry to wet (p)"; "Dry to wet (l)"];
+
+            
+            % loop for seasonal transition date signatures 
+            
+            row1 = logical(sig.depth == depth(k));
+            row2 = logical(sig.station == n);
+
+            for s4 = 9:12
+                
                     row3 = logical(sig.network == "Oznet");
                     row4 = logical(sig.type == sig_abb2(s4));
                     row5 = row1&row2&row3&row4;
@@ -138,21 +153,16 @@ results_duration.depth = []; results_duration.station = []; results_duration.typ
                     row5 = row1&row2&row3&row4;
                     selected_sig_gl = sig.value(row5);
                     clear row3 row4 row5
-                
-                    if isempty(s3)
-                        continue
-                    end
                     
                     if length(selected_sig_gl) == length(selected_sig_oz)
-                          for s5 = 1:length(s3)
-                              s6 = s3(s5);
-                               if char(selected_sig_gl(s6)) ~= "NaN " && char(selected_sig_oz(s6)) ~= "NaN "
+                          for s5 = 1:length(selected_sig_gl)
+                               if char(selected_sig_gl(s5)) ~= "NaN " && char(selected_sig_oz(s5)) ~= "NaN "
                                     results_duration.depth = [results_duration.depth; depth(k)];
                                     results_duration.station = [results_duration.station; n];
                                     results_duration.type = [results_duration.type; sig_abb2(s4)];
-                                    results_duration.oz = [results_duration.oz; str2double(cell2mat(selected_sig_oz(s6)))];
-                                    results_duration.gl = [results_duration.gl;  str2double(cell2mat(selected_sig_gl(s6)))]; 
-                                    results_duration.residual = [results_duration.residual; str2double(cell2mat(selected_sig_gl(s6))) - str2double(cell2mat(selected_sig_oz(s6)))];
+                                    results_duration.oz = [results_duration.oz; str2double(cell2mat(selected_sig_oz(s5)))];
+                                    results_duration.gl = [results_duration.gl;  str2double(cell2mat(selected_sig_gl(s5)))]; 
+                                    results_duration.residual = [results_duration.residual; str2double(cell2mat(selected_sig_gl(s5))) - str2double(cell2mat(selected_sig_oz(s5)))];
                                end
                           end
                     end
@@ -161,8 +171,18 @@ results_duration.depth = []; results_duration.station = []; results_duration.typ
                 
             end
             
-        end
-
+    end
+    
+    
+    T1 = table(results_timing.depth, results_timing.station, results_timing.type, results_timing.oz, results_timing.gl, results_timing.residual, ...
+        'VariableNames', {'depth','station','sig_type','Oznet_date','GLDAS_date','residual_days'});  
+    writetable(T1, fullfile(out_path, 'timing.csv'), 'Delimiter', ',');
+    
+    T2 = table(results_duration.depth, results_duration.station, results_duration.type, results_duration.oz, results_duration.gl, results_duration.residual, ...
+        'VariableNames', {'depth','station','sig_type','Oznet_days','GLDAS_days','residual_days'});  
+    writetable(T2, fullfile(out_path, 'duration.csv'), 'Delimiter', ',');
+    
+        
          % plot the times series of data
 
          % if the depth/station has the GLDAS/Oznet data, 
@@ -170,7 +190,7 @@ results_duration.depth = []; results_duration.station = []; results_duration.typ
              % plot the seasonal transition timings (Piecewise)
 
              % plot the seasonal transition timings (Logistic)
-    end
+
 
      % if both GLDAS/Oznet has the data, find the close wet/drying seasons (within 50days of error or something?) and take the residuals
 

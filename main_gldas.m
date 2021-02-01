@@ -14,7 +14,6 @@ save_results = true; % if you want to clear the previous results and save new re
 cd("G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\1_codes");
 in_path = "G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\0_data\";
 out_path = "G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\2_out\";
-addpath("G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\SignatureAnalysis\5_codes_signatures");
 
 % Site information
 obs = ["Oznet";"GLDAS"];
@@ -109,18 +108,16 @@ for j = 1:size(obs,1)
             if obs(j,:) == "Oznet" && (stationflag(n,k) == 101 || stationflag(n,k) == 107 || stationflag(n,k) == 108)
                 modality = 'NaN';
                 fc = NaN; wp = NaN;
-                seasontrans_sdate_wet2dry_p = NaN;seasontrans_edate_wet2dry_p = NaN;
-                seasontrans_sdate_dry2wet_p = NaN;seasontrans_edate_dry2wet_p = NaN;
+                seasontrans_sdate_wet2dry_p = NaT;seasontrans_edate_wet2dry_p = NaT;
+                seasontrans_sdate_dry2wet_p = NaT;seasontrans_edate_dry2wet_p = NaT;
                 seasontrans_duration_wet2dry_p = NaN;seasontrans_duration_dry2wet_p = NaN;
-                seasontrans_sdate_wet2dry_l = NaN;seasontrans_edate_wet2dry_l = NaN;
-                seasontrans_sdate_dry2wet_l = NaN;seasontrans_edate_dry2wet_l = NaN;
+                seasontrans_sdate_wet2dry_l = NaT;seasontrans_edate_wet2dry_l = NaT;
+                seasontrans_sdate_dry2wet_l = NaT;seasontrans_edate_dry2wet_l = NaT;
                 seasontrans_duration_wet2dry_l = NaN;seasontrans_duration_dry2wet_l = NaN;
-                amplitude = NaN; risingtime = NaN; noresrate = NaN;
-                RLD = NaN;
                 
             % if the time series have trends, execute signatures that are durable to de-trending 
             ... maybe include them when I got time! exclude for now 
-            elseif obs(j,:) == "Oznet" && (stationflag(n,k) == 106)
+            else %if obs(j,:) == "Oznet" && (stationflag(n,k) == 106)
                 % Detrend the time series
                 [smdtr, smttdtr] = util_detrend(sm,smtt);
                 
@@ -131,50 +128,50 @@ for j = 1:size(obs,1)
                 [fc, wp] = sig_fcwp(smdtr, smttdtr, false);
 
                 % Seasonal transition duration and dates
-                if fc ~= wp %modality == 'bimodal' && fc ~= wp
+%                 if fc ~= wp %modality == 'bimodal' && fc ~= wp
                     [seasontrans_sdate_wet2dry_p, seasontrans_edate_wet2dry_p, seasontrans_sdate_dry2wet_p, seasontrans_edate_dry2wet_p, ...
                     seasontrans_duration_wet2dry_p, seasontrans_duration_dry2wet_p, seasontrans_sdate_wet2dry_l, seasontrans_edate_wet2dry_l, ...
                     seasontrans_sdate_dry2wet_l, seasontrans_edate_dry2wet_l, seasontrans_duration_wet2dry_l, seasontrans_duration_dry2wet_l] ...
                     = sig_seasontrans(smttdtr, wp, fc, false, "date");
-                else
-                    seasontrans_sdate_wet2dry_p = NaN;seasontrans_edate_wet2dry_p = NaN;
-                    seasontrans_sdate_dry2wet_p = NaN;seasontrans_edate_dry2wet_p = NaN;
-                    seasontrans_duration_wet2dry_p = NaN;seasontrans_duration_dry2wet_p = NaN;
-                    seasontrans_sdate_wet2dry_l = NaN;seasontrans_edate_wet2dry_l = NaN;
-                    seasontrans_sdate_dry2wet_l = NaN;seasontrans_edate_dry2wet_l = NaN;
-                    seasontrans_duration_wet2dry_l = NaN;seasontrans_duration_dry2wet_l = NaN;
-                end
+%                 else
+%                     seasontrans_sdate_wet2dry_p = NaN;seasontrans_edate_wet2dry_p = NaN;
+%                     seasontrans_sdate_dry2wet_p = NaN;seasontrans_edate_dry2wet_p = NaN;
+%                     seasontrans_duration_wet2dry_p = NaN;seasontrans_duration_dry2wet_p = NaN;
+%                     seasontrans_sdate_wet2dry_l = NaN;seasontrans_edate_wet2dry_l = NaN;
+%                     seasontrans_sdate_dry2wet_l = NaN;seasontrans_edate_dry2wet_l = NaN;
+%                     seasontrans_duration_wet2dry_l = NaN;seasontrans_duration_dry2wet_l = NaN;
+%                 end
                 
-                % As the absolute values of fc and wp are not reliable for trending time series, reset the values and do not include them to the stats
-                fc = NaN;
-                wp = NaN;
+%                 % As the absolute values of fc and wp are not reliable for trending time series, reset the values and do not include them to the stats
+%                 fc = NaN;
+%                 wp = NaN;
 
-            %% for OzNet without erroneous trends/data, and GLDAS, always execute the signatures
-            else
-
-                % Detrend the time series
-                [smdtr, smttdtr] = util_detrend(sm,smtt);
-                
-                %  Modality 
-                % modality = sig_pdf(smdtr);
-
-                % Field capacity and wilting points
-                [fc, wp] = sig_fcwp(smdtr, smttdtr, false);
-
-                % Seasonal transition duration and dates
-                if fc ~= wp %modality == 'bimodal' && fc ~= wp
-                    [seasontrans_sdate_wet2dry_p, seasontrans_edate_wet2dry_p, seasontrans_sdate_dry2wet_p, seasontrans_edate_dry2wet_p, ...
-                    seasontrans_duration_wet2dry_p, seasontrans_duration_dry2wet_p, seasontrans_sdate_wet2dry_l, seasontrans_edate_wet2dry_l, ...
-                    seasontrans_sdate_dry2wet_l, seasontrans_edate_dry2wet_l, seasontrans_duration_wet2dry_l, seasontrans_duration_dry2wet_l] ...
-                    = sig_seasontrans(smttdtr, wp, fc, false, "date");
-                else
-                    seasontrans_sdate_wet2dry_p = NaN;seasontrans_edate_wet2dry_p = NaN;
-                    seasontrans_sdate_dry2wet_p = NaN;seasontrans_edate_dry2wet_p = NaN;
-                    seasontrans_duration_wet2dry_p = NaN;seasontrans_duration_dry2wet_p = NaN;
-                    seasontrans_sdate_wet2dry_l = NaN;seasontrans_edate_wet2dry_l = NaN;
-                    seasontrans_sdate_dry2wet_l = NaN;seasontrans_edate_dry2wet_l = NaN;
-                    seasontrans_duration_wet2dry_l = NaN;seasontrans_duration_dry2wet_l = NaN;
-                end
+%             %% for OzNet without erroneous trends/data, and GLDAS, always execute the signatures
+%             else
+% 
+%                 % Detrend the time series
+%                 [smdtr, smttdtr] = util_detrend(sm,smtt);
+%                 
+%                 %  Modality 
+%                 % modality = sig_pdf(smdtr);
+% 
+%                 % Field capacity and wilting points
+%                 [fc, wp] = sig_fcwp(smdtr, smttdtr, false);
+% 
+%                 % Seasonal transition duration and dates
+%                 if fc ~= wp %modality == 'bimodal' && fc ~= wp
+%                     [seasontrans_sdate_wet2dry_p, seasontrans_edate_wet2dry_p, seasontrans_sdate_dry2wet_p, seasontrans_edate_dry2wet_p, ...
+%                     seasontrans_duration_wet2dry_p, seasontrans_duration_dry2wet_p, seasontrans_sdate_wet2dry_l, seasontrans_edate_wet2dry_l, ...
+%                     seasontrans_sdate_dry2wet_l, seasontrans_edate_dry2wet_l, seasontrans_duration_wet2dry_l, seasontrans_duration_dry2wet_l] ...
+%                     = sig_seasontrans(smttdtr, wp, fc, false, "date");
+%                 else
+%                     seasontrans_sdate_wet2dry_p = NaN;seasontrans_edate_wet2dry_p = NaN;
+%                     seasontrans_sdate_dry2wet_p = NaN;seasontrans_edate_dry2wet_p = NaN;
+%                     seasontrans_duration_wet2dry_p = NaN;seasontrans_duration_dry2wet_p = NaN;
+%                     seasontrans_sdate_wet2dry_l = NaN;seasontrans_edate_wet2dry_l = NaN;
+%                     seasontrans_sdate_dry2wet_l = NaN;seasontrans_edate_dry2wet_l = NaN;
+%                     seasontrans_duration_wet2dry_l = NaN;seasontrans_duration_dry2wet_l = NaN;
+%                 end
 
             end
             
@@ -242,25 +239,25 @@ for j = 1:size(obs,1)
 
                 fid = fopen(fullfile(out_path,fn9),'a');
                 for p = 1:size(seasontrans_duration_wet2dry_p,1)
-                    fprintf(fid, '%d %d %d \n', depth(k), n, seasontrans_duration_wet2dry_p(p));
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_duration_wet2dry_p(p));
                 end
                 fclose(fid);
                 
                 fid = fopen(fullfile(out_path,fn9_2),'a');
                 for p = 1:size(seasontrans_duration_wet2dry_l,1)
-                    fprintf(fid, '%d %d %d \n', depth(k), n, seasontrans_duration_wet2dry_l(p));
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_duration_wet2dry_l(p));
                 end
                 fclose(fid);
 
                 fid = fopen(fullfile(out_path,fn10),'a');
                 for p = 1:size(seasontrans_duration_dry2wet_p,1)
-                    fprintf(fid, '%d %d %d \n', depth(k), n, seasontrans_duration_dry2wet_p(p));
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_duration_dry2wet_p(p));
                 end
                 fclose(fid);
                 
                 fid = fopen(fullfile(out_path,fn10_2),'a');
                 for p = 1:size(seasontrans_duration_dry2wet_l,1)
-                    fprintf(fid, '%d %d %d \n', depth(k), n, seasontrans_duration_dry2wet_l(p));
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_duration_dry2wet_l(p));
                 end
                 fclose(fid);
 

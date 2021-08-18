@@ -1,0 +1,314 @@
+%% Script to run the soil moisture signature from csv file
+% publish('main.m', 'doc')
+
+% =========== BEGINNING OF THE CODE ============
+
+clear all;
+slCharacterEncoding('UTF-8');
+
+%% Preparation
+% Select the module you want to run ...
+save_results = true; % if you want to clear the previous results and save new results
+
+% Set path
+cd("G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\1_codes");
+in_path = "G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\0_data\";
+out_path = "G:\Shared drives\Ryoko and Hilary\SoilMoistureSignature\GLDAS\2_out";
+
+% Site information
+obs = ["Oznet";"GLDAS"];
+depth = [3,4,15,42,45,56,59,66,71,72,75]; 
+nstation = 38;
+% Original in-situ depths are: depth = [3,4,15,42,45,56,59,66,71,72,75];
+
+%% Main execution
+
+for j = 1
+    
+    % create/read new file for recording results
+    % soil-related signatures
+    fn1 = sprintf('modality_%s_%s.txt', obs(j,:));
+    fn2 = sprintf('fc_%s_%s.txt', obs(j,:));
+    fn3 = sprintf('wp_%s_%s.txt', obs(j,:));
+    % seasonal signatures 
+    fn5 = sprintf('seasontrans_sdate_wet2dry_p_%s_%s.txt', obs(j,:));
+    fn5_2 = sprintf('seasontrans_sdate_wet2dry_l_%s_%s.txt', obs(j,:));
+    fn6 = sprintf('seasontrans_edate_wet2dry_p_%s_%s.txt', obs(j,:));
+    fn6_2 = sprintf('seasontrans_edate_wet2dry_l_%s_%s.txt', obs(j,:));
+    fn7 = sprintf('seasontrans_sdate_dry2wet_p_%s_%s.txt', obs(j,:));
+    fn7_2 = sprintf('seasontrans_sdate_dry2wet_l_%s_%s.txt', obs(j,:));
+    fn8 = sprintf('seasontrans_edate_dry2wet_p_%s_%s.txt', obs(j,:));
+    fn8_2 = sprintf('seasontrans_edate_dry2wet_l_%s_%s.txt', obs(j,:));
+    fn9 = sprintf('seasontrans_duration_wet2dry_p_%s_%s.txt', obs(j,:));
+    fn9_2 = sprintf('seasontrans_duration_wet2dry_l_%s_%s.txt', obs(j,:));
+    fn10 = sprintf('seasontrans_duration_dry2wet_p_%s_%s.txt', obs(j,:));
+    fn10_2 = sprintf('seasontrans_duration_dry2wet_l_%s_%s.txt', obs(j,:));
+
+    % delete existing files
+    if save_results
+        delete(fullfile(out_path,fn1));delete(fullfile(out_path,fn2));delete(fullfile(out_path,fn3));
+        delete(fullfile(out_path,fn5));delete(fullfile(out_path,fn5_2));delete(fullfile(out_path,fn6));delete(fullfile(out_path,fn6_2));
+        delete(fullfile(out_path,fn7));delete(fullfile(out_path,fn7_2)); delete(fullfile(out_path,fn8));delete(fullfile(out_path,fn8_2));
+        delete(fullfile(out_path,fn9));delete(fullfile(out_path,fn9_2));delete(fullfile(out_path,fn10));delete(fullfile(out_path,fn10_2));
+    end
+    
+    % Read stationflag
+    if obs(j,:) == "Oznet"
+        fid = fopen(fullfile(in_path, 'GLAS','stationflag.csv'), 'r');
+        stationflag0 = textscan(fid,repmat('%f', 1, length(depth)),'HeaderLines',0,'Delimiter',',');
+        fclose(fid);
+        stationflag = cell2mat(stationflag0);
+    end
+    
+    for n = 1:nstation
+        stationfield = sprintf('station%d', n);
+        varname = sprintf('Var%d',n);
+        statement = sprintf('Currently processing the station #%d of %s data', n, obs(j,:));
+        disp(statement)
+    for k = 1:size(depth,2)
+        depthfield = sprintf('depth%dcm', depth(k));
+        
+        % Read SM data    
+        if obs(j,:) == "Oznet"
+            fn0 = sprintf('sm_d%02d_s%02d.csv', obs(j,:), depth(k), n);
+            fn = fullpath(, fn0)
+        elseif obs(j,:) == "GLDAS"
+        end
+        
+        if exist(fn, 'file') == 2
+            fid = fopen(fn, 'r');
+%             try
+%                 smtt0 = textscan(fid,'%{dd-MMM-yyyy HH:mm:ss}D %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
+%                 smtt = timetable(smtt0{1},smtt0{2});
+%             catch % i don't know why but i cannot read OZ station #17 data with the above line ...
+                smtt0 = textscan(fid,'%q %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
+                smtt = timetable(datetime(smtt0{1}),smtt0{2});
+%             end
+            fclose(fid);
+            sm = smtt0{2};
+            clear smtt0
+
+            %% Calculate signatures
+            %% if the data have trends/decifict, put NaN in results
+            if stationflag(n,k) == 101 || stationflag(n,k) == 107 || stationflag(n,k) == 108 || stationflag(n,k) == 106
+                modality = 'NaN';
+                fc = NaN; wp = NaN;
+                seasontrans_sdate_wet2dry_p = NaN;seasontrans_edate_wet2dry_p = NaN;
+                seasontrans_sdate_dry2wet_p = NaN;seasontrans_edate_dry2wet_p = NaN;
+                seasontrans_duration_wet2dry_p = NaN;seasontrans_duration_dry2wet_p = NaN;
+                seasontrans_sdate_wet2dry_l = NaN;seasontrans_edate_wet2dry_l = NaN;
+                seasontrans_sdate_dry2wet_l = NaN;seasontrans_edate_dry2wet_l = NaN;
+                seasontrans_duration_wet2dry_l = NaN;seasontrans_duration_dry2wet_l = NaN;
+                amplitude = NaN; risingtime = NaN; noresrate = NaN;
+                RLD = NaN;
+                
+            %% if the time series have trends, execute signatures that are durable to de-trending 
+            % ... maybe include them when I got time! exclude for now 
+%             elseif stationflag(n,k) == 106
+%                 % Detrend the time series
+%                 [smdtr, smttdtr] = util_detrend(sm,smtt);
+%                 
+%                 %  Modality 
+%                 modality = sig_pdf(smdtr);
+% 
+%                 % Field capacity and wilting points
+%                 [fc, wp] = sig_fcwp(smdtr);
+% 
+%                 % Seasonal transition duration and dates
+%                 if modality == 'bimodal'
+%                     [seasontrans_sdate_wet2dry_p, seasontrans_edate_wet2dry_p, seasontrans_sdate_dry2wet_p, seasontrans_edate_dry2wet_p, ...
+%                     seasontrans_duration_wet2dry_p, seasontrans_duration_dry2wet_p, seasontrans_sdate_wet2dry_l, seasontrans_edate_wet2dry_l, ...
+%                     seasontrans_sdate_dry2wet_l, seasontrans_edate_dry2wet_l, seasontrans_duration_wet2dry_l, seasontrans_duration_dry2wet_l] ...
+%                     = sig_seasontrans(smttdtr, wp, fc);
+%                 else
+%                     seasontrans_sdate_wet2dry_p = NaN;seasontrans_edate_wet2dry_p = NaN;
+%                     seasontrans_sdate_dry2wet_p = NaN;seasontrans_edate_dry2wet_p = NaN;
+%                     seasontrans_duration_wet2dry_p = NaN;seasontrans_duration_dry2wet_p = NaN;
+%                     seasontrans_sdate_wet2dry_l = NaN;seasontrans_edate_wet2dry_l = NaN;
+%                     seasontrans_sdate_dry2wet_l = NaN;seasontrans_edate_dry2wet_l = NaN;
+%                     seasontrans_duration_wet2dry_l = NaN;seasontrans_duration_dry2wet_l = NaN;
+%                 end
+% 
+%                 % Event signatures
+%                 [amplitude, risingtime, noresrate] = sig_event(stormtt, ptt, wp, fc, smdtr, smttdtr, n);
+%     
+%                 % Rising Limb Density 
+%                 RLD = sig_RLD(smdtr,smttdtr.Properties.RowTimes,'plot_results',true,'eps',0.0001,'rising_limb_length',0.04167, 'minimum_peak',0.01);
+%                 % rising_limb_length ~= 1h, minimum peak = 1percent of VWC, eps is arbitrary 
+%                 
+%                 % As the absolute values of fc and wp are not reliable for trending time series, reset the values and do not include them to the stats
+%                 [fc, wp] = [NaN, NaN];
+
+            %% if the data do not have trend, execute the signatures
+            elseif stationflag(n,k) == 100 || stationflag(n,k) == 102 || stationflag(n,k) == 103 ...
+                    || stationflag(n,k) == 104 || stationflag(n,k) == 105
+
+                % Detrend the time series
+                [smdtr, smttdtr] = util_detrend(sm,smtt);
+                
+                %  Modality 
+                modality = sig_pdf(smdtr);
+
+                % Field capacity and wilting points
+                [fc, wp] = sig_fcwp(sm);
+
+                % Seasonal transition duration and dates
+                if modality == 'bimodal' && fc ~= wp
+                    [seasontrans_sdate_wet2dry_p, seasontrans_edate_wet2dry_p, seasontrans_sdate_dry2wet_p, seasontrans_edate_dry2wet_p, ...
+                    seasontrans_duration_wet2dry_p, seasontrans_duration_dry2wet_p, seasontrans_sdate_wet2dry_l, seasontrans_edate_wet2dry_l, ...
+                    seasontrans_sdate_dry2wet_l, seasontrans_edate_dry2wet_l, seasontrans_duration_wet2dry_l, seasontrans_duration_dry2wet_l] ...
+                    = sig_seasontrans(smtt, wp, fc, false);
+                else
+                    seasontrans_sdate_wet2dry_p = NaN;seasontrans_edate_wet2dry_p = NaN;
+                    seasontrans_sdate_dry2wet_p = NaN;seasontrans_edate_dry2wet_p = NaN;
+                    seasontrans_duration_wet2dry_p = NaN;seasontrans_duration_dry2wet_p = NaN;
+                    seasontrans_sdate_wet2dry_l = NaN;seasontrans_edate_wet2dry_l = NaN;
+                    seasontrans_sdate_dry2wet_l = NaN;seasontrans_edate_dry2wet_l = NaN;
+                    seasontrans_duration_wet2dry_l = NaN;seasontrans_duration_dry2wet_l = NaN;
+                end
+
+                % Event signatures
+                % [amplitude, risingtime, noresrate] = sig_event(stormtt, ptt, wp, fc, sm, smtt, n);
+    
+                % Rising Limb Density 
+                % RLD = sig_RLD(sm,smtt.Properties.RowTimes,'plot_results',true,'eps',0.0001,'rising_limb_length',0.04167, 'minimum_peak',0.01);
+                % rising_limb_length ~= 1h, minimum peak = 1percent of VWC, eps is arbitrary
+
+            end
+            
+            % save the results
+            if save_results
+                fid = fopen(fn1,'a');
+                    fprintf(fid, '%d %d %s \n', depth(k), n, modality);
+                fclose(fid);
+
+                fid = fopen(fn2,'a');
+                    fprintf(fid, '%d %d %f \n', depth(k), n, fc);
+                fclose(fid);
+                
+                fid = fopen(fn3,'a');
+                    fprintf(fid, '%d %d %f \n', depth(k), n, wp);
+                fclose(fid);
+
+%                 fid = fopen(fn4,'a');
+%                     fprintf(fid, '%d %d %f \n', depth(k), n, RLD);
+%                 fclose(fid);
+
+                fid = fopen(fn5,'a');
+                for p = 1:size(seasontrans_sdate_wet2dry_p,1)
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_sdate_wet2dry_p(p));
+                end
+                fclose(fid);
+                
+                fid = fopen(fn5_2,'a');
+                for p = 1:size(seasontrans_sdate_wet2dry_l,1)
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_sdate_wet2dry_l(p));
+                end
+                fclose(fid);
+
+                fid = fopen(fn6,'a');
+                for p = 1:size(seasontrans_edate_wet2dry_p,1)
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_edate_wet2dry_p(p));
+                end
+                fclose(fid);
+                
+                fid = fopen(fn6_2,'a');
+                for p = 1:size(seasontrans_edate_wet2dry_l,1)
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_edate_wet2dry_l(p));
+                end
+                fclose(fid);
+
+                fid = fopen(fn7,'a');
+                for p = 1:size(seasontrans_sdate_dry2wet_p,1)
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_sdate_dry2wet_p(p));
+                end
+                fclose(fid);
+                
+                fid = fopen(fn7_2,'a');
+                for p = 1:size(seasontrans_sdate_dry2wet_l,1)
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_sdate_dry2wet_l(p));
+                end
+                fclose(fid);
+
+                fid = fopen(fn8,'a');
+                for p = 1:size(seasontrans_edate_dry2wet_p,1)
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_edate_dry2wet_p(p));
+                end
+                fclose(fid);
+                
+                fid = fopen(fn8_2,'a');
+                for p = 1:size(seasontrans_edate_dry2wet_l,1)
+                    fprintf(fid, '%d %d %f \n', depth(k), n, seasontrans_edate_dry2wet_l(p));
+                end
+                fclose(fid);
+
+                fid = fopen(fn9,'a');
+                for p = 1:size(seasontrans_duration_wet2dry_p,1)
+                    fprintf(fid, '%d %d %d \n', depth(k), n, seasontrans_duration_wet2dry_p(p));
+                end
+                fclose(fid);
+                
+                fid = fopen(fn9_2,'a');
+                for p = 1:size(seasontrans_duration_wet2dry_l,1)
+                    fprintf(fid, '%d %d %d \n', depth(k), n, seasontrans_duration_wet2dry_l(p));
+                end
+                fclose(fid);
+
+                fid = fopen(fn10,'a');
+                for p = 1:size(seasontrans_duration_dry2wet_p,1)
+                    fprintf(fid, '%d %d %d \n', depth(k), n, seasontrans_duration_dry2wet_p(p));
+                end
+                fclose(fid);
+                
+                fid = fopen(fn10_2,'a');
+                for p = 1:size(seasontrans_duration_dry2wet_l,1)
+                    fprintf(fid, '%d %d %d \n', depth(k), n, seasontrans_duration_dry2wet_l(p));
+                end
+                fclose(fid);
+
+%                 fid = fopen(fn11,'a');
+%                 for p = 1:size(amplitude,1)
+%                     fprintf(fid, '%d %d %f \n', depth(k), n, amplitude(p));
+%                 end
+%                 fclose(fid);
+% 
+%                 fid = fopen(fn12,'a');
+%                 for p = 1:size(risingtime,1)
+%                     fprintf(fid, '%d %d %f \n', depth(k), n, risingtime(p));
+%                 end
+%                 fclose(fid);
+% 
+%                 fid = fopen(fn13,'a');
+%                 for p = 1:size(noresrate,1)
+%                     fprintf(fid, '%d %d %f \n', depth(k), n, noresrate(p));
+%                 end
+%                 fclose(fid);
+            end
+
+            clear smtt sm smttdtr smdtr depthfield stationfield fc wp npeaks ...
+            seasontrans_sdate_wet2dry_p seasontrans_edate_wet2dry_p seasontrans_sdate_dry2wet_p seasontrans_edate_dry2wet_p seasontrans_duration_wet2dry_p seasontrans_duration_dry2wet_p ...
+            seasontrans_sdate_wet2dry_l seasontrans_edate_wet2dry_l seasontrans_sdate_dry2wet_l seasontrans_edate_dry2wet_l seasontrans_duration_wet2dry_l seasontrans_duration_dry2wet_l;
+            
+        else
+            % if the soil moisture data file does not exist, do nothing
+        end
+
+        % if there is only one precipitation data, use the data for the rest of the loop
+        if npstation == 1
+            continue
+        else
+        % otherwise, clear precipitation data
+            clear ppt stormarray stormtt
+        end
+        
+    end      
+    end 
+    
+    clear depth nstation npstation stationflag
+     
+end
+
+% load handel
+% sound(y,Fs)
+
+%% =========== END OF THE CODE ============

@@ -12,7 +12,7 @@ slCharacterEncoding('UTF-8');
 save_results = true; % if you want to clear the previous results and save new results
 
 % Set path
-cd("G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS");
+cd("G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\5_code_sig");
 in_path = "G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\4_data\";
 out_path = "G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\6_out_sig\";
 
@@ -20,7 +20,7 @@ out_path = "G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\6_out_sig\";
 network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
-for i = 1:length(network)
+for i = 3 %1:length(network)
     
     switch network(i)
         case "Oznet"
@@ -32,14 +32,14 @@ for i = 1:length(network)
     end
     
     %  Read sine curve data
-    fid = fopen(fullfile(in_path, network(i), 'sine_ridge.csv'),'r');
-    ridge_date0 = textscan(fid,'%s','HeaderLines',0,'Delimiter',',');
+    fid = fopen(fullfile(in_path, network(i), 'combined', 'sine_ridge_gldas.txt'),'r');
+    ridge_date0 = textscan(fid,'%s','HeaderLines',0);
     fclose(fid);
     ridge_date = datetime(string(ridge_date0{1}));
     clear fid
     
-    fid = fopen(fullfile(in_path, network(i), 'sine_valley.csv'), 'r');
-    valley_date0 = textscan(fid,'%s','HeaderLines',0,'Delimiter',',');
+    fid = fopen(fullfile(in_path, network(i), 'combined', 'sine_valley_gldas.txt'), 'r');
+    valley_date0 = textscan(fid,'%s','HeaderLines',0);
     fclose(fid);
     valley_date = datetime(string(valley_date0{1}));
     clear fid
@@ -114,7 +114,7 @@ for i = 1:length(network)
                     switch k
                         case 1
                             ninsitu = 38;
-                            fn0 = 'depth_3cm.csv'; % name of the input file name
+                            fn0 = 'depth_3cm.csv'; % input file name
                         case 2
                             ninsitu = 38;
                             fn0 = 'depth_4cm.csv';
@@ -122,23 +122,44 @@ for i = 1:length(network)
                             ninsitu = 1;
                             fn0 = 'depth_0_10cm.csv';
                     end
+                case "USCRN"
+                    switch k
+                        case 1
+                            ninsitu = 29;
+                            fn0 = 'USCRN.csv';
+                        case 2
+                            ninsitu = 1;
+                            fn0 = 'average.csv';
+                    end
+                case "SCAN"
+                    switch k
+                        case 1
+                            ninsitu = 91;
+                            fn0 = 'SCAN.csv';
+                        case 2
+                            ninsitu = 1;
+                            fn0 = 'average.csv';
+                    end
             end
             
-            % Read SM data
-            fn = fullfile(in_path, network(i), "GLDAS", fn0);
+            % Read GLDAS SM data
+            fn = fullfile(in_path, network(i), "combined", fn0);
             fid = fopen(fn, 'r');
-            if k == 1 || k == 2
+            % for sensorwise data
+            if depth(k) ~= 10
                 smtt0 = textscan(fid,'%d %q %f %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
-            else
+                % for watershed average data
+            elseif i == 1
                 smtt0 = textscan(fid,'%q %f %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
+            else
+                smtt0 = textscan(fid,'%q %f %f','HeaderLines',1,'Delimiter',',');
             end
             fclose(fid);
             
-            for n = 1:ninsitu
-                statement = sprintf('Currently processing the %s data (case %d, insitu %d)', obs(j,:), k, n);
-                disp(statement)
+            for n = 1:ninsitu %1:ninsitu
+                fprintf('Currently processing the %s, %s data (case %d, insitu %d) \n', network(k), obs(j,:), k, n);
                 
-                if k == 1 || k == 2
+                if depth(k) ~= 10
                     n_rows = find(smtt0{1} == n);
                     if obs(j) == "insitu"
                         smtt1 = timetable(datetime(smtt0{2}),smtt0{3});

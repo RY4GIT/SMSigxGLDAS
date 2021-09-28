@@ -146,7 +146,7 @@ function [WY, seasontrans_sdate_wet2dry_p, seasontrans_edate_wet2dry_p, seasontr
             
             % if the VWC is smaller than the minimum VWC after the wettest point, remove the data 
             if length(seasonsm.Var1) >= 30
-                seasonsm.Var1(seasonsm.Var1(end-30:end)< min(seasonsmvalue)) = NaN;
+                seasonsm.Var1(seasonsm.Var1(end-30+1:end)< min(seasonsmvalue)) = NaN;
             end
             
             % if the time series is too short, skip the time series

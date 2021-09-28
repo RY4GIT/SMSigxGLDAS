@@ -21,7 +21,7 @@ network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
 %% Main execution
-for i = 1 %:length(network)
+for i = 2:3 %:length(network)
     
     switch network(i)
         case "Oznet"
@@ -36,7 +36,8 @@ for i = 1 %:length(network)
     fn3 = 'sine_ridge_gldas.txt';
     fn4 = 'sine_valley_gldas.txt';
     if save_results
-        delete(fullfile(out_path1, network(i), fn3));delete(fullfile(out_path1, network(i), fn4));
+        delete(fullfile(out_path1, network(i), "combined", fn3));
+        delete(fullfile(out_path1, network(i), "combined", fn4));
     end
     
     for j = 1:size(obs,1)
@@ -46,11 +47,11 @@ for i = 1 %:length(network)
         
         % delete existing files
         if save_results
-            delete(fullfile(out_path1, network(i), "combined", fn1));
-            delete(fullfile(out_path1, network(i), "combined", fn2));
+            delete(fullfile(out_path1, network(i), fn1));
+            delete(fullfile(out_path1, network(i), fn2));
         end
         
-        for k = 1:length(depth)
+        for k = 1:2 %1:length(depth)
             switch network(i)
                 % for Oznet,
                 % case 1: insitu 3cm vs. gldas 0_10cm, point-to-pixel comparison
@@ -60,7 +61,7 @@ for i = 1 %:length(network)
                     switch k
                         case 1
                             ninsitu = 38;
-                            fn0 = 'depth_3cm.csv'; % name of the input file name
+                            fn0 = 'depth_3cm.csv'; % input file name
                         case 2
                             ninsitu = 38;
                             fn0 = 'depth_4cm.csv';
@@ -68,26 +69,46 @@ for i = 1 %:length(network)
                             ninsitu = 1;
                             fn0 = 'depth_0_10cm.csv';
                     end
+                case "USCRN"
+                    switch k
+                        case 1
+                            ninsitu = 29;
+                            fn0 = 'USCRN.csv';
+                        case 2
+                            ninsitu = 1;
+                            fn0 = 'average.csv';
+                    end    
+                case "SCAN"
+                    switch k
+                        case 1
+                            ninsitu = 91;
+                            fn0 = 'SCAN.csv';
+                        case 2
+                            ninsitu = 1;
+                            fn0 = 'average.csv';
+                    end
             end
             
             % Read GLDAS SM data
             fn = fullfile(in_path, network(i), "combined", fn0);
             fid = fopen(fn, 'r');
             % for sensorwise data
-            if k == 1 || k == 2
+            if depth(k) ~= 10
                 smtt0 = textscan(fid,'%d %q %f %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
-                % for watershed average data
-            else
+            % for watershed average data
+            elseif i == 1
                 smtt0 = textscan(fid,'%q %f %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
+            else
+                smtt0 = textscan(fid,'%q %f %f','HeaderLines',1,'Delimiter',',');
             end
             fclose(fid);
             
             for n = 1:ninsitu
-                statement = sprintf('Currently processing the %s data (case %d, insitu %d)', obs(j,:), k, n);
+                statement = sprintf('Currently processing the %s %s data (case %d, insitu %d)', network(i), obs(j,:), k, n);
                 disp(statement)
                 
                 % for sensorwise data
-                if k == 1 || k == 2
+                if depth(k) ~= 10
                     n_rows = find(smtt0{1} == n);
                     if obs(j) == "insitu"
                         smtt1 = timetable(datetime(smtt0{2}),smtt0{3});
@@ -122,7 +143,7 @@ for i = 1 %:length(network)
                 [A, phi, k2] = util_FitSineCurve(t_datenum, sm, w);
                 
                 %% get seasonal transition valley and peaks
-                if obs(j,:) == "gldas" && k == 3
+                if depth(k) == 10
                     sine_start = fix(t_datenum/365 + phi/2/pi);
                     sine_end = fix(t_datenum/365 + phi/2/pi)-1;
                     
@@ -154,7 +175,7 @@ for i = 1 %:length(network)
                     fprintf(fid, '%d %d %f \n', depth(k), n, phi);
                     fclose(fid); clear fid;
                     
-                    if obs(j,:) == "gldas" && k == 3
+                    if depth(k) == 10
                         fid = fopen(fullfile(out_path2, network(i), 'combined', fn3),'a');
                         fprintf(fid, '%s \n', valley);
                         fclose(fid); clear fid;

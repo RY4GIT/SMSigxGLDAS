@@ -21,7 +21,7 @@ network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
 %% Main execution
-for i = 2:3 %:length(network)
+for i = 1:length(network)
     
     switch network(i)
         case "Oznet"
@@ -51,7 +51,7 @@ for i = 2:3 %:length(network)
             delete(fullfile(out_path1, network(i), fn2));
         end
         
-        for k = 1:2 %1:length(depth)
+        for k = 1:length(depth)
             switch network(i)
                 % for Oznet,
                 % case 1: insitu 3cm vs. gldas 0_10cm, point-to-pixel comparison

@@ -13,14 +13,17 @@ save_results = true; % if you want to clear the previous results and save new re
 
 % Set path
 cd("G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\5_code_sig");
-in_path = "G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\4_data\";
-out_path = "G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\6_out_sig\";
+
 
 % Site information
 network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
-for i = 3 %1:length(network)
+for i = 1:length(network)
+    
+    % Set path
+    in_path = fullfile("..\4_data\",network(i));
+    out_path = fullfile("..\6_out_sig\",network(i));
     
     switch network(i)
         case "Oznet"
@@ -32,13 +35,13 @@ for i = 3 %1:length(network)
     end
     
     %  Read sine curve data
-    fid = fopen(fullfile(in_path, network(i), 'combined', 'sine_ridge_gldas.txt'),'r');
+    fid = fopen(fullfile(in_path, 'combined', 'sine_ridge_gldas.txt'),'r');
     ridge_date0 = textscan(fid,'%s','HeaderLines',0);
     fclose(fid);
     ridge_date = datetime(string(ridge_date0{1}));
     clear fid
     
-    fid = fopen(fullfile(in_path, network(i), 'combined', 'sine_valley_gldas.txt'), 'r');
+    fid = fopen(fullfile(in_path, 'combined', 'sine_valley_gldas.txt'), 'r');
     valley_date0 = textscan(fid,'%s','HeaderLines',0);
     fclose(fid);
     valley_date = datetime(string(valley_date0{1}));
@@ -143,7 +146,7 @@ for i = 3 %1:length(network)
             end
             
             % Read GLDAS SM data
-            fn = fullfile(in_path, network(i), "combined", fn0);
+            fn = fullfile(in_path, "combined", fn0);
             fid = fopen(fn, 'r');
             % for sensorwise data
             if depth(k) ~= 10
@@ -157,7 +160,7 @@ for i = 3 %1:length(network)
             fclose(fid);
             
             for n = 1:ninsitu %1:ninsitu
-                fprintf('Currently processing the %s, %s data (case %d, insitu %d) \n', network(k), obs(j,:), k, n);
+                fprintf('Currently processing the %s, %s data (%d cm, station %d) \n', network(i), obs(j,:), depth(k), n);
                 
                 if depth(k) ~= 10
                     n_rows = find(smtt0{1} == n);
@@ -210,62 +213,62 @@ for i = 3 %1:length(network)
                     %                     fprintf(fid, '%d %d %s \n', depth(k), n, modality);
                     %                 fclose(fid);
                     
-                    fid = fopen(fullfile(out_path, network(i), fn2),'a');
+                    fid = fopen(fullfile(out_path, fn2),'a');
                     fprintf(fid, '%d %d %f \n', depth(k), n, fc);
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn3),'a');
+                    fid = fopen(fullfile(out_path, fn3),'a');
                     fprintf(fid, '%d %d %f \n', depth(k), n, wp);
                     fclose(fid); clear fid;
                     
                     %  ============  record as dates
                     seasontrans_sdate_wet2dry_p.Format = 'dd-MMM-yyyy';
-                    fid = fopen(fullfile(out_path, network(i), fn4),'a');
+                    fid = fopen(fullfile(out_path, fn4),'a');
                     for p = 1:size(seasontrans_sdate_wet2dry_p,1)
                         fprintf(fid, '%d %d %s %d \n', depth(k), n, seasontrans_sdate_wet2dry_p(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn5),'a');
+                    fid = fopen(fullfile(out_path, fn5),'a');
                     for p = 1:size(seasontrans_sdate_wet2dry_l,1)
                         fprintf(fid, '%d %d %s %d \n', depth(k), n, seasontrans_sdate_wet2dry_l(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
                     seasontrans_edate_wet2dry_p.Format = 'dd-MMM-yyyy';
-                    fid = fopen(fullfile(out_path, network(i), fn6),'a');
+                    fid = fopen(fullfile(out_path, fn6),'a');
                     for p = 1:size(seasontrans_edate_wet2dry_p,1)
                         fprintf(fid, '%d %d %s %d \n', depth(k), n, seasontrans_edate_wet2dry_p(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn7),'a');
+                    fid = fopen(fullfile(out_path, fn7),'a');
                     for p = 1:size(seasontrans_edate_wet2dry_l,1)
                         fprintf(fid, '%d %d %s %d \n', depth(k), n, seasontrans_edate_wet2dry_l(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
                     seasontrans_sdate_dry2wet_p.Format = 'dd-MMM-yyyy';
-                    fid = fopen(fullfile(out_path, network(i), fn8),'a');
+                    fid = fopen(fullfile(out_path, fn8),'a');
                     for p = 1:size(seasontrans_sdate_dry2wet_p,1)
                         fprintf(fid, '%d %d %s %d \n', depth(k), n, seasontrans_sdate_dry2wet_p(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn9),'a');
+                    fid = fopen(fullfile(out_path, fn9),'a');
                     for p = 1:size(seasontrans_sdate_dry2wet_l,1)
                         fprintf(fid, '%d %d %s %d \n', depth(k), n, seasontrans_sdate_dry2wet_l(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
                     seasontrans_edate_dry2wet_p.Format = 'dd-MMM-yyyy';
-                    fid = fopen(fullfile(out_path, network(i), fn10),'a');
+                    fid = fopen(fullfile(out_path, fn10),'a');
                     for p = 1:size(seasontrans_edate_dry2wet_p,1)
                         fprintf(fid, '%d %d %s %d \n', depth(k), n, seasontrans_edate_dry2wet_p(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn11),'a');
+                    fid = fopen(fullfile(out_path, fn11),'a');
                     for p = 1:size(seasontrans_edate_dry2wet_l,1)
                         fprintf(fid, '%d %d %s %d \n', depth(k), n, seasontrans_edate_dry2wet_l(p), WY(p));
                     end
@@ -273,99 +276,99 @@ for i = 3 %1:length(network)
                     
                     
                     %  ============  record as deviation
-                    fid = fopen(fullfile(out_path, network(i), fn16),'a');
+                    fid = fopen(fullfile(out_path, fn16),'a');
                     for p = 1:size(seasontrans_sdate_wet2dry_p2,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_sdate_wet2dry_p2(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn17),'a');
+                    fid = fopen(fullfile(out_path, fn17),'a');
                     for p = 1:size(seasontrans_sdate_wet2dry_l2,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_sdate_wet2dry_l2(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn18),'a');
+                    fid = fopen(fullfile(out_path, fn18),'a');
                     for p = 1:size(seasontrans_edate_wet2dry_p2,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_edate_wet2dry_p2(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn19),'a');
+                    fid = fopen(fullfile(out_path, fn19),'a');
                     for p = 1:size(seasontrans_edate_wet2dry_l2,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_edate_wet2dry_l2(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn20),'a');
+                    fid = fopen(fullfile(out_path, fn20),'a');
                     for p = 1:size(seasontrans_sdate_dry2wet_p2,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_sdate_dry2wet_p2(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn21),'a');
+                    fid = fopen(fullfile(out_path, fn21),'a');
                     for p = 1:size(seasontrans_sdate_dry2wet_l2,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_sdate_dry2wet_l2(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn22),'a');
+                    fid = fopen(fullfile(out_path, fn22),'a');
                     for p = 1:size(seasontrans_edate_dry2wet_p2,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_edate_dry2wet_p2(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn23),'a');
+                    fid = fopen(fullfile(out_path, fn23),'a');
                     for p = 1:size(seasontrans_edate_dry2wet_l2,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_edate_dry2wet_l2(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
                     %  ============  duration
-                    fid = fopen(fullfile(out_path, network(i), fn12),'a');
+                    fid = fopen(fullfile(out_path, fn12),'a');
                     for p = 1:size(seasontrans_duration_wet2dry_p,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_duration_wet2dry_p(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn13),'a');
+                    fid = fopen(fullfile(out_path, fn13),'a');
                     for p = 1:size(seasontrans_duration_wet2dry_l,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_duration_wet2dry_l(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn14),'a');
+                    fid = fopen(fullfile(out_path, fn14),'a');
                     for p = 1:size(seasontrans_duration_dry2wet_p,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_duration_dry2wet_p(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn15),'a');
+                    fid = fopen(fullfile(out_path, fn15),'a');
                     for p = 1:size(seasontrans_duration_dry2wet_l,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, seasontrans_duration_dry2wet_l(p), WY(p));
                     end
                     fclose(fid); clear fid;
                     
                     % ============ record r2 and n
-                    fid = fopen(fullfile(out_path, network(i), fn24),'a');
+                    fid = fopen(fullfile(out_path, fn24),'a');
                     for p = 1:size(record_squaredMiOi,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, record_squaredMiOi(p,1), record_n(p,1));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn25),'a');
+                    fid = fopen(fullfile(out_path, fn25),'a');
                     for p = 1:size(record_squaredMiOi,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, record_squaredMiOi(p,2), record_n(p,2));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn26),'a');
+                    fid = fopen(fullfile(out_path, fn26),'a');
                     for p = 1:size(record_squaredMiOi,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, record_squaredMiOi(p,3), record_n(p,3));
                     end
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path, network(i), fn27),'a');
+                    fid = fopen(fullfile(out_path, fn27),'a');
                     for p = 1:size(record_squaredMiOi,1)
                         fprintf(fid, '%d %d %f %d \n', depth(k), n, record_squaredMiOi(p,4), record_n(p,4));
                     end

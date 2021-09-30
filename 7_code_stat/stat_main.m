@@ -27,7 +27,7 @@ sig_abb2 = ["Start day (piecewise)"; "Start day (logistic)"; ...
 sig_abb3 = ["amplitude"; "phaseshift"];
 sig_abb4 = ["Amplitude"; "Phase shift"];
 
-for i = 2:length(network)
+for i = 1:length(network)
     switch network(i)
         case "Oznet"
             depth = [3; 4; 10];
@@ -47,8 +47,5 @@ for i = 2:length(network)
     stat_align_sigSine(network(i), depth, nstation, sig_abb3);
 end
 
-    stat_calc(site, depth, nstation, sig_abb, sig_abb2);
-    stat_pl_count(site, depth, nstation, sig_abb, sig_abb2);
-    stat_r2_count();
-    
-        stat_calc2(site, depth, nstation, sig_abb3, sig_abb4);
+    % stat_pl_count(site, depth, nstation, sig_abb, sig_abb2);
+    % stat_r2_count();

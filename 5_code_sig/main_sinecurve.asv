@@ -8,22 +8,20 @@ slCharacterEncoding('UTF-8');
 
 %% Preparation
 % Select the module you want to run ...
-save_results = true; % if you want to clear the previous results and save new results
+save_results = false; % if you want to clear the previous results and save new results
 
 % Set path
 cd("G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\5_code_sig\");
 in_path = "..\4_data\";
-
+out_path1 = "..\6_out_sig\"; % to output the amplitude and phase shift info
+out_path2 = "..\4_data\"; % to putout the valley and peak info
 
 % Site information
 network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
 %% Main execution
-for i = 1:length(network)
-    
-    out_path1 = fullfile("..\6_out_sig\", network(i)); % to output the amplitude and phase shift info
-    out_path2 = fullfile("..\4_data\", network(i), "combined"); % to putout the valley and peak info
+for i = 2 %1:length(network)
     
     [depth, nstation, ~] = io_siteinfo(network(i));
     
@@ -31,8 +29,8 @@ for i = 1:length(network)
     fn3 = 'sine_ridge_gldas.txt';
     fn4 = 'sine_valley_gldas.txt';
     if save_results
-        delete(fullfile(out_path2, fn3));
-        delete(fullfile(out_path2, fn4));
+        delete(fullfile(out_path1, network(i), "combined", fn3));
+        delete(fullfile(out_path1, network(i), "combined", fn4));
     end
     
     for j = 1:size(obs,1)
@@ -41,11 +39,11 @@ for i = 1:length(network)
         fn2 = sprintf('phaseshift_%s.txt', obs(j,:));
         % delete existing files
         if save_results
-            delete(fullfile(out_path1, fn1));
-            delete(fullfile(out_path1, fn2));
+            delete(fullfile(out_path1, network(i), fn1));
+            delete(fullfile(out_path1, network(i), fn2));
         end
         
-        for k = 1:length(depth)
+        for k = 2 %1:length(depth)
             switch network(i)
                 % for Oznet,
                 % case 1: insitu 3cm vs. gldas 0_10cm, point-to-pixel comparison
@@ -151,39 +149,34 @@ for i = 1:length(network)
                     valley = datetime(valley, 'ConvertFrom','datenum');
                     ridge = datetime(ridge, 'ConvertFrom','datenum');
                     
-%                     figure;
-%                     plot(datetime(t_datenum, 'ConvertFrom','datenum'), sm); hold on;
-%                     plot(datetime(t_datenum, 'ConvertFrom','datenum'), y_hat); hold on;
-%                     scatter(valley, repelem(min(y_hat),size(valley,2)), 'DisplayName', 'valley');
-%                     scatter(ridge, repelem(max(y_hat),size(ridge,2)), 'DisplayName', 'ridge');
-%                     legend;
-%                     
-%                     disp(ridge);
-%                     disp(valley);
-%                     
+                    figure;
+                    plot(datetime(t_datenum, 'ConvertFrom','datenum'), y_hat); hold on;
+                    plot(datetime(t_datenum, 'ConvertFrom','datenum'), y_hat); hold on;
+                    scatter(valley, repelem(max(y_hat),size(valley,2)), 'DisplayName', 'valley');
+                    scatter(ridge, repelem(max(y_hat),size(ridge,2)), 'DisplayName', 'ridge');
+                    legend;
+                    
                 end
                 
                 %% save the results
                 if save_results
                     
-                    fid = fopen(fullfile(out_path1, fn1),'a');
+                    fid = fopen(fullfile(out_path1, network(i), fn1),'a');
                     fprintf(fid, '%d %d %f \n', depth(k), n, A);
                     fclose(fid); clear fid;
                     
-                    fid = fopen(fullfile(out_path1, fn2),'a');
+                    fid = fopen(fullfile(out_path1, network(i), fn2),'a');
                     fprintf(fid, '%d %d %f \n', depth(k), n, phi);
                     fclose(fid); clear fid;
                     
-                    if depth(k) == 10 && obs(j) == "gldas"
-                        
-                        fid = fopen(fullfile(out_path2,fn3),'a');
+                    if depth(k) == 10
+                        fid = fopen(fullfile(out_path2, network(i), 'combined', fn3),'a');
                         fprintf(fid, '%s \n', valley);
                         fclose(fid); clear fid;
                         
-                        fid = fopen(fullfile(out_path2, fn4),'a');
+                        fid = fopen(fullfile(out_path2, network(i), 'combined', fn4),'a');
                         fprintf(fid, '%s \n', ridge);
                         fclose(fid); clear fid;
-                        
                     end
                     
                 end

@@ -515,8 +515,13 @@ end
 record_seasontrans_duration(record_seasontrans_duration == days(0)) = days(NaN);
 record_seasontrans_date2(record_seasontrans_date2 == 0) = NaN;
 
+record_len = size(record_seasontrans_date2,1);
+record_squaredMiOi(record_len+1:end, :) = [];
+record_n(record_len+1:end, :) = [];
+
 % return the array
 if format_date == "dayofyear"
+    
     seasontrans_sdate_dry2wet_p = day(record_seasontrans_date(:,1),'dayofyear');
     seasontrans_edate_dry2wet_p = day(record_seasontrans_date(:,2),'dayofyear');
     
@@ -528,7 +533,9 @@ if format_date == "dayofyear"
     
     seasontrans_sdate_wet2dry_l = day(record_seasontrans_date(:,7),'dayofyear');
     seasontrans_edate_wet2dry_l = day(record_seasontrans_date(:,8),'dayofyear');
+    
 elseif format_date == "date"
+    
     seasontrans_sdate_dry2wet_p = record_seasontrans_date(:,1);
     seasontrans_edate_dry2wet_p = record_seasontrans_date(:,2);
     
@@ -540,7 +547,9 @@ elseif format_date == "date"
     
     seasontrans_sdate_wet2dry_l = record_seasontrans_date(:,7);
     seasontrans_edate_wet2dry_l = record_seasontrans_date(:,8);
+    
 elseif format_date == "deviation"
+    
     seasontrans_sdate_dry2wet_p = record_seasontrans_date2(:,1);
     seasontrans_edate_dry2wet_p = record_seasontrans_date2(:,2);
     
@@ -552,6 +561,7 @@ elseif format_date == "deviation"
     
     seasontrans_sdate_wet2dry_l = record_seasontrans_date2(:,7);
     seasontrans_edate_wet2dry_l = record_seasontrans_date2(:,8);
+    
 end
 
 seasontrans_duration_dry2wet_p = days(record_seasontrans_duration(:,1));

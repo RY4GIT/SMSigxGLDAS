@@ -536,17 +536,17 @@ if format_date == "dayofyear"
     
 elseif format_date == "date"
     
-    seasontrans_sdate_dry2wet_p = record_seasontrans_date(:,1);
-    seasontrans_edate_dry2wet_p = record_seasontrans_date(:,2);
+    seasontrans_sdate_dry2wet_p = datenum(record_seasontrans_date(:,1));
+    seasontrans_edate_dry2wet_p = datenum(record_seasontrans_date(:,2));
     
-    seasontrans_sdate_dry2wet_l = record_seasontrans_date(:,3);
-    seasontrans_edate_dry2wet_l = record_seasontrans_date(:,4);
+    seasontrans_sdate_dry2wet_l = datenum(record_seasontrans_date(:,3));
+    seasontrans_edate_dry2wet_l = datenum(record_seasontrans_date(:,4));
     
-    seasontrans_sdate_wet2dry_p = record_seasontrans_date(:,5);
-    seasontrans_edate_wet2dry_p = record_seasontrans_date(:,6);
+    seasontrans_sdate_wet2dry_p = datenum(record_seasontrans_date(:,5));
+    seasontrans_edate_wet2dry_p = datenum(record_seasontrans_date(:,6));
     
-    seasontrans_sdate_wet2dry_l = record_seasontrans_date(:,7);
-    seasontrans_edate_wet2dry_l = record_seasontrans_date(:,8);
+    seasontrans_sdate_wet2dry_l = datenum(record_seasontrans_date(:,7));
+    seasontrans_edate_wet2dry_l = datenum(record_seasontrans_date(:,8));
     
 elseif format_date == "deviation"
     

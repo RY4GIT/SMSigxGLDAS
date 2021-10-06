@@ -47,7 +47,9 @@ for i = 1:length(network)
             % create/read new file for recording results
             fn = sprintf('%s_%s.txt', string(sigT.sig_abb(s)), obs(j,:));
             if save_results
-                delete(fullfile(out_path,fn));
+                fid = fopen(fullfile(out_path, fn),'w');
+                fprintf(fid, "depth,sid,value,WY\n");
+                fclose(fid);
             end
             % initialize the recording struct
             R.(string(sigT.sig_abb(s))) = [];

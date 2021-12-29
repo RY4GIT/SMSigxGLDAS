@@ -95,9 +95,9 @@ for i = 1 %:length(network)
             % Send to seasonal transition signature, get results 
             [fc, wp] = sig_fcwp(smtt.insitu, smtt(:,1), false);
             [seasontrans_date_insitu, seasontrans_duration_insitu] ...
-            = sig_seasontrans2(smtt(:,1), t_valley, wp, fc, true);
-%             [seasontrans_date_gldas, seasontrans_duration_gldas] ...
-%             = sig_seasontrans2(smtt(:,2), t_valley, wp, fc, true);
+            = sig_seasontrans(smtt(:,1), t_valley, wp, fc, true);
+            [seasontrans_date_gldas, seasontrans_duration_gldas] ...
+            = sig_seasontrans2(smtt(:,2), t_valley, wp, fc, true);
 
             % Record the results 
             

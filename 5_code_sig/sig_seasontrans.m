@@ -102,16 +102,12 @@ for sinecycle =  sine_start:1:sine_end %cut out at every two peaks
     
     % choose the closest peaks from the Oznet avg. sine curve, to
     % identify WY & calculate metrics
-    WY0 = year(valley(abs(valley - dry2wet_start) == min(abs(valley - dry2wet_start)))) + 1;
+    WY0 = year(ridge(abs(ridge - dry2wet_start) == min(abs(ridge - dry2wet_start))));
     
-    dry2wet_start0 = valley(abs(valley - dry2wet_start) == min(abs(valley - dry2wet_start)));
-    dry2wet_start0 = dry2wet_start0(1,1);
     dry2wet_end0 = ridge(abs(ridge - dry2wet_end) == min(abs(ridge - dry2wet_end)));
-    dry2wet_end0 = dry2wet_end0(1,1);
+    dry2wet_start0 = dry2wet_end0 - days(365/2);
     wet2dry_start0 = ridge(abs(ridge  - wet2dry_start) == min(abs(ridge  - wet2dry_start)));
-    wet2dry_start0 = wet2dry_start0(1,1);
-    wet2dry_end0 = valley(abs(valley - wet2dry_end) == min(abs(valley - wet2dry_end)));
-    wet2dry_end0 = wet2dry_end0(1,1);
+    wet2dry_end0 = wet2dry_start0 + days(365/2);
     
     
     %% Dry2wet transition
@@ -577,18 +573,3 @@ writematrix(Lfit, 'season_Lfit.txt');
 writematrix(Lfit2, 'season_Lfit2.txt');
 
 end
-
-%misc. memo
-
-% Not constrained by field capacity & wilting point
-%     Only use P(1) to P(4)
-%     Pfit(i,:) = lsqcurvefit(piecewisemodel, P0, x2, y2, lb2, ub2);
-%
-%     modelpred = piecewisemodel(Pfit(i,:),sort(x2));
-%     figure;plot(x2,y2,'o',sort(x2),modelpred,'r-');
-
-% Constrained by field capacity & wilting point
-% Use fmincon ... find minimum of constrained nonlinear multivariable function
-% https://www.mathworks.com/help/optim/ug/fmincon.html
-% https://www.mathworks.com/matlabcentral/answers/87316-how-to-solve-a-nonlinear-least-square-problem-with-constraints
-% https://www.mathworks.com/help/optim/ug/nonlinear-constraints.html

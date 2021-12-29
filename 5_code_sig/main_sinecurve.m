@@ -7,13 +7,11 @@ clear all;
 slCharacterEncoding('UTF-8');
 
 %% Preparation
-% Select the module you want to run ...
 save_results = true; % if you want to clear the previous results and save new results
 
 % Set path
 cd("G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\5_code_sig\");
 in_path = "..\4_data\";
-
 
 % Site information
 network = ["Oznet"; "USCRN"; "SCAN"];

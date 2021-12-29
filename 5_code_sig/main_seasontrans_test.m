@@ -19,7 +19,7 @@ network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 sigT = readtable('./sig_run_format.csv', 'HeaderLines',0,'Delimiter',',');
 
-for i = 1:length(network)
+for i = 3 %1:length(network)
     
     % Set path
     in_path = fullfile("..\4_data\", network(i));
@@ -32,12 +32,6 @@ for i = 1:length(network)
     ridge_date0 = textscan(fid,'%s','HeaderLines',0);
     fclose(fid);
     ridge_date = datetime(string(ridge_date0{1}));
-    clear fid
-    
-    fid = fopen(fullfile(in_path, 'combined', 'sine_valley_gldas.txt'), 'r');
-    valley_date0 = textscan(fid,'%s','HeaderLines',0);
-    fclose(fid);
-    valley_date = datetime(string(valley_date0{1}));
     clear fid
     
     %% Main execution
@@ -56,10 +50,10 @@ for i = 1:length(network)
         end
         R.WY = [];
         
-        for k = 1:length(depth)
+        for k = 2 %1:length(depth)
             [smtt0, ninsitu] = read_data1(network(i), k, depth, in_path);
             
-            for n = 1:ninsitu %1:ninsitu
+            for n = 1 %:ninsitu
                 fprintf('Currently processing the %s, %s data (%d cm, station %d) \n', network(i), obs(j,:), depth(k), n);
                 
                 if depth(k) ~= 10
@@ -98,45 +92,9 @@ for i = 1:length(network)
                 R.fc = fc;
                 R.wp = wp;
                 
-                [R.WY, R.seasontrans_sdate_wet2dry_p, R.seasontrans_edate_wet2dry_p, R.seasontrans_sdate_dry2wet_p, R.seasontrans_edate_dry2wet_p, ...
-                    R.seasontrans_duration_wet2dry_p, R.seasontrans_duration_dry2wet_p, R.seasontrans_sdate_wet2dry_l, R.seasontrans_edate_wet2dry_l, ...
-                    R.seasontrans_sdate_dry2wet_l, R.seasontrans_edate_dry2wet_l, R.seasontrans_duration_wet2dry_l, R.seasontrans_duration_dry2wet_l, ...
-                    record_squaredMiOi, record_n] ...
-                    = sig_seasontrans(smttdtr, ridge_date, valley_date, wp, fc, false, "date");
-                
-                R.performance_dry2wet_p = horzcat(record_squaredMiOi(:,1), record_n(:,1));
-                R.performance_dry2wet_l = horzcat(record_squaredMiOi(:,2), record_n(:,2));
-                R.performance_wet2dry_p = horzcat(record_squaredMiOi(:,3), record_n(:,3));
-                R.performance_wet2dry_l = horzcat(record_squaredMiOi(:,4), record_n(:,4));
+                [WY, seasontrans_time_date, seasontrans_time_deviation, seasontrans_duration, record_squaredMiOi, record_n] ...
+                    = sig_seasontrans_test(smtt, ridge_date, wp, fc, "piecewise", true)
 
-                [~, R.seasontrans_sdate_wet2dry_p2, R.seasontrans_edate_wet2dry_p2, R.seasontrans_sdate_dry2wet_p2, R.seasontrans_edate_dry2wet_p2, ...
-                    ~, ~, R.seasontrans_sdate_wet2dry_l2, R.seasontrans_edate_wet2dry_l2, ...
-                    R.seasontrans_sdate_dry2wet_l2, R.seasontrans_edate_dry2wet_l2, ~, ~] ...
-                    = sig_seasontrans(smttdtr, ridge_date, valley_date, wp, fc, false, "deviation");
-                
-                %% save the results
-                if save_results
-                    for s = 1:size(sigT,1)
-                        sig_values = R.(string(sigT.sig_abb(s)));
-                        fn = sprintf('%s_%s.txt', string(sigT.sig_abb(s)), obs(j,:));
-                        fid = fopen(fullfile(out_path, fn),'a');
-                        for p = 1:size(sig_values,1)
-                            if contains(string(sigT.sig_abb(s)), 'performance')
-                                fprintf(fid, string(sigT.out_format(s)), ...
-                                    depth(k), n, sig_values(p,:));
-                            elseif contains(string(sigT.sig_abb(s)), 'wp') || contains(string(sigT.sig_abb(s)), 'fc') || contains(string(sigT.sig_abb(s)), 'modality')
-                                fprintf(fid, string(sigT.out_format(s)), ...
-                                    depth(k), n, sig_values(p));
-                            else
-                                fprintf(fid, string(sigT.out_format(s)), ...
-                                    depth(k), n, sig_values(p), R.WY(p));
-                            end
-                        end
-                        fclose(fid);
-                        clear fid;
-                    end
-                end
-                
             end
         end
     end

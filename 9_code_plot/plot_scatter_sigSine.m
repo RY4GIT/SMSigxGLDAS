@@ -1,4 +1,4 @@
-function [] = stat_calc(site, depth, nstation, sig_abb, sig_abb2)
+function [] = plot_scatter_sigSine(site, depth, nstation, sig_abb, sig_abb2)
 
 % This script calculates stats for seasonal transition signatures results of twi sets of data, GLDAS and Oznet. 
 

@@ -41,9 +41,7 @@ for t = 1:2
         seasonsm = smtt(timerange(trans_start0-days(30),trans_end0+days(30)),:);
         seasonsmvalue = table2array(seasonsm);
         
-        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.7 || isempty(seasonsmvalue)
-            % do nothing
-        else
+        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.5 || isempty(seasonsmvalue) || length(seasonsmvalue) < 50
             % find the actual dryest & wettest point during a season using max and min
             t_min = find(seasonsmvalue == min(seasonsmvalue),1);
             t_max = find(seasonsmvalue == max(seasonsmvalue),1);

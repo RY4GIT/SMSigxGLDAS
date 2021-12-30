@@ -1,15 +1,7 @@
 sig_abb,sig_fullname,ylabel,lowerlim,upperlim,marker
-amplitude,Amplitude, m^3/m^3,0,0.15,o
-phaseshift,Phase Shift,Days,-3,3,o
-seasontrans_sdate_wet2dry_p2,Start of wet to dry transition (P),Day of the year,-365,365,s
-seasontrans_sdate_wet2dry_l2,Start of wet to dry transition (L),Day of the year,-365,365,o
-seasontrans_edate_wet2dry_p2,End of wet to dry transition (P),Day of the year,-365,365,s
-seasontrans_edate_wet2dry_l2,End of wet to dry transition (L),Day of the year,-365,365,o
-seasontrans_sdate_dry2wet_p2,Start of dry to wet transition (P),Day of the year,-365,365,s
-seasontrans_sdate_dry2wet_l2,Start of dry to wet transition (L),Day of the year,-365,365,o
-seasontrans_edate_dry2wet_p2,End of dry to wet transition (P),Day of the year,-365,365,s
-seasontrans_edate_dry2wet_l2,End of dry to wet transition (L),Day of the year,-365,365,o
-seasontrans_duration_wet2dry_p,Duration of wet to dry transition (P),Days,1,200,s
-seasontrans_duration_wet2dry_l,Duration of wet to dry transition (L),Days,1,200,o
-seasontrans_duration_dry2wet_p,Duration of dry to wet transition (P),Days,1,200,s
-seasontrans_duration_dry2wet_l,Duration of dry to wet transition (L),Days,1,200,o
+seasontrans_sdate_wet2dry,Start of wet to dry transition,Day of the year,-365,365,s
+seasontrans_edate_wet2dry,End of wet to dry transition,Day of the year,-365,365,s
+seasontrans_sdate_dry2wet,Start of dry to wet transition,Day of the year,-365,365,s
+seasontrans_edate_dry2wet,End of dry to wet transition,Day of the year,-365,365,s
+seasontrans_duration_wet2dry,Duration of wet to dry transition,Days,1,200,s
+seasontrans_duration_dry2wet,Duration of dry to wet transition,Days,1,200,s

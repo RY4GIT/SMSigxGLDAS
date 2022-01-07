@@ -1,4 +1,4 @@
-function [] = plot_scatter_main2()
+function [] = plot_scatter_main()
 
 %% Preparation
 close all; clear all;
@@ -15,13 +15,13 @@ sigT = readtable('sig_format.csv','HeaderLines',0,'Delimiter',',');
 
 %% Figures
 % create scatter plot & calculate correlation coefficient
-for s = 2 %1:size(sigT,1)
+for s = 1:size(sigT,1)
     
     figure(s);
     set(gcf, 'Position',[100 100 400 600]);
     set(gca,'fontsize',14)
     
-    for i = 1 %1:length(networks)
+    for i = 1:length(networks)
         in_path = fullfile("..\8_out_stat", networks(i));
         T = readtable(fullfile(in_path, sprintf('%s.csv', string(sigT.sig_abb(s)))), 'Delimiter', ',');
         

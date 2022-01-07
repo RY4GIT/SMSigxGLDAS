@@ -16,9 +16,8 @@ in_path = "..\4_data\";
 network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
-
 %% Main execution
-for i = 1:length(network)
+for i = 1 %:length(network)
     % initiation
     record_depth = [];
     record_station = [];
@@ -51,7 +50,7 @@ for i = 1:length(network)
         end
         fclose(fid);
         
-        for n = 19:29 %ninsitu
+        for n = 19 %1:ninsitu
             statement = sprintf('Currently processing the %s data (case %d, station %d)', network(i), k, n);
             disp(statement)
             
@@ -106,11 +105,12 @@ for i = 1:length(network)
             % //////////////////////////////////////////////////
  
             % Send to seasonal transition signature, get results 
+
             [fc, wp] = sig_fcwp(smtt.insitu, smtt(:,1), false);
             [seasontrans_date_insitu, seasontrans_duration_insitu] ...
-            = sig_seasontrans(smtt(:,1), t_valley, wp, fc, false);
+            = sig_seasontrans(smtt(:,1), t_valley, wp, fc, true, 'insitu');
             [seasontrans_date_gldas, seasontrans_duration_gldas] ...
-            = sig_seasontrans(smtt(:,2), t_valley, wp, fc, false);
+            = sig_seasontrans(smtt(:,2), t_valley, wp, fc, true, 'gldas');
 
             % Record the results 
             record_depth = [record_depth; repelem(depth(k), size(seasontrans_date_insitu,1), 1)];

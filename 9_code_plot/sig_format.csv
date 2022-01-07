@@ -1,7 +1,7 @@
 sig_abb,sig_fullname,ylabel,lowerlim,upperlim,marker
-seasontrans_sdate_wet2dry,Start of wet to dry transition,Day of the year,-365,365,s
-seasontrans_edate_wet2dry,End of wet to dry transition,Day of the year,-365,365,s
-seasontrans_sdate_dry2wet,Start of dry to wet transition,Day of the year,-365,365,s
-seasontrans_edate_dry2wet,End of dry to wet transition,Day of the year,-365,365,s
+seasontrans_sdate_wet2dry,Start of wet to dry transition,Day of the year,-100,400,s
+seasontrans_edate_wet2dry,End of wet to dry transition,Day of the year,-100,400,s
+seasontrans_sdate_dry2wet,Start of dry to wet transition,Day of the year,-100,400,s
+seasontrans_edate_dry2wet,End of dry to wet transition,Day of the year,-100,400,s
 seasontrans_duration_wet2dry,Duration of wet to dry transition,Days,1,200,s
 seasontrans_duration_dry2wet,Duration of dry to wet transition,Days,1,200,s

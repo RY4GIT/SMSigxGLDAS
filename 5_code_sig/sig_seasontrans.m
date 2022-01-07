@@ -1,7 +1,7 @@
 %% Signature code to obtain seasonal transition metrics
 
 function [seasontrans_date, seasontrans_duration] ...
-    = sig_seasontrans(smtt, t_valley, wp, fc, plot_results)
+    = sig_seasontrans(smtt, t_valley, wp, fc, plot_results, data_label)
 
 %% Initialization
 
@@ -15,7 +15,7 @@ trans = ["dry2wet"; "wet2dry"];
 
 %% Main execution
 % Loop for transitions
-for t = 1:2
+for t = 1:length(trans)
     
     % Record the parameters
     Pfit = zeros(length(t_valley)-1,6); % store parameter sets for linear piecewise eq.
@@ -41,7 +41,7 @@ for t = 1:2
         seasonsm = smtt(timerange(trans_start0-days(30),trans_end0+days(30)),:);
         seasonsmvalue = table2array(seasonsm);
         
-        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.7 || isempty(seasonsmvalue)
+        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.7 || isempty(seasonsmvalue) || length(seasonsmvalue) < 30
             % do nothing
         else
             % find the actual dryest & wettest point during a season using max and min
@@ -70,12 +70,12 @@ for t = 1:2
                 case "dry2wet"
                     % if the VWC is smaller than the minimum VWC after the wettest point, remove the data
                     if length(seasonsm.Var1) >= 30
-                        seasonsm.Var1(seasonsm.Var1(end-30:end)< min(seasonsmvalue)) = NaN;
+                        seasonsm.Var1(seasonsm.Var1(end-30+1:end)< min(seasonsmvalue)) = NaN;
                     end
                 case "wet2dry"
                     % if the VWC is larger than the max VWC after the dryest point, remove the data
                     if length(seasonsm.Var1) >= 30
-                        seasonsm.Var1(seasonsm.Var1(end-30:end)> max(seasonsmvalue)) = NaN;
+                        seasonsm.Var1(seasonsm.Var1(end-30+1:end)> max(seasonsmvalue)) = NaN;
                     end
             end
             seasonsmvalue = table2array(seasonsm);
@@ -140,19 +140,20 @@ for t = 1:2
             % ====   Plot the time series   ========
             % ======================================
             if plot_results
-                figure;
+                figure(i+(t-1)*length(t_valley));
                 x250d = [1:250]';
                 piecewisemode1 = @(P,x) P(1) + P(2)*x + P(2)*plusfun(P(3)-x) + (-P(2))*plusfun(x-(P(3)+P(4))) + 0*P(5) + 0*P(6);
                 modelpred = piecewisemode1(Pfit(i,:),x250d);
                 
-                plot(x,y,'-'); hold on;
-                plot(x250d,modelpred,'r-','LineWidth',2); hold on;
+                plot(seasonsm.Properties.RowTimes(1)+days(x),y,'-','DisplayName', data_label); hold on;
+                plot(seasonsm.Properties.RowTimes(1)+days(x250d),modelpred,'r-','LineWidth',2,'DisplayName', data_label); hold on;
                 if ~isnan(Pfit(i,3))
-                    xline(Pfit(i,3),'r','LineWidth',1.5); xline(Pfit(i,3)+Pfit(i,4),'r','LineWidth',1.5);
+                    xline(seasonsm.Properties.RowTimes(1)+ days(Pfit(i,3)),'r','LineWidth',1.5,'HandleVisibility','off');
+                    xline(seasonsm.Properties.RowTimes(1)+ days(Pfit(i,3)+Pfit(i,4)),'r','LineWidth',1.5,'HandleVisibility','off');
                 end
-                xlabel('Time'); ylabel('VSWC [m^3/m^3]');
+                xlabel('Time'); ylabel('VSWC [m^3/m^3]'); legend;
                 title(sprintf('%s - %s', seasonsm.Properties.RowTimes(1), seasonsm.Properties.RowTimes(end)));
-                hold off;
+                hold on;
             end
             
         end

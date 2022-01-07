@@ -15,13 +15,13 @@ sigT = readtable('sig_format.csv','HeaderLines',0,'Delimiter',',');
 
 %% Figures
 % create scatter plot & calculate correlation coefficient
-for s = 3:size(sigT,1)
+for s = 1:size(sigT,1)
     
     figure(s);
     set(gcf, 'Position',[100 100 400 600]);
     set(gca,'fontsize',14)
     
-    for i = 2 %1:length(networks)
+    for i = 1:length(networks)
         in_path = fullfile("..\8_out_stat", networks(i));
         T = readtable(fullfile(in_path, sprintf('%s.csv', string(sigT.sig_abb(s)))), 'Delimiter', ',');
     
@@ -37,13 +37,13 @@ for s = 3:size(sigT,1)
                 c = [217,95,2]./225;
         end
         
-        for k = 2 %1:length(depth)
+        for k = 1:length(depth)
             
             % get the corresponding data
             selected = T.depth == depth(k);
             
             % calculate correlation coefficient
-            r0 = corrcoef(T.insitu(selected), T.GLDAS(selected), 'rows', 'pairwise');
+            r0 = corrcoef(T.insitu(selected), T.gldas(selected), 'rows', 'pairwise');
             if length(r0) == 1
                 r = r0;
             else
@@ -59,7 +59,7 @@ for s = 3:size(sigT,1)
             end
             
             % create scatter plot & calculate correlation coefficient
-            scatter(T.insitu(selected), T.GLDAS(selected), 30, c, string(sigT.marker(s)), 'filled', ...
+            scatter(T.insitu(selected), T.gldas(selected), 30, c, string(sigT.marker(s)), 'filled', ...
                 'MarkerFaceColor', c, 'MarkerEdgeColor', e, 'MarkerFaceAlpha', a, 'DisplayName', sprintf('%s (%d cm), R = %.2f', networks(i), depth(k), r(1,1)));
             hold on;
             

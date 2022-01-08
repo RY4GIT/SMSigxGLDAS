@@ -4,7 +4,7 @@
 % =========== BEGINNING OF THE CODE ============
 
 %% Preparation
-clear all;
+clear all; close all;
 slCharacterEncoding('UTF-8');
 save_results = true; % if you want to clear the previous results and save new results
 
@@ -17,7 +17,7 @@ network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
 %% Main execution
-for i = 1 %:length(network)
+for i = 3 %:length(network)
     % initiation
     record_depth = [];
     record_station = [];
@@ -28,7 +28,7 @@ for i = 1 %:length(network)
 
     [depth, nstation, ~, ninsitu, fn0] = io_siteinfo(network(i));
     
-    for k = 1 %:length(depth)
+    for k = 2 %:length(depth)
         
         %%
         % //////////////////////////////////////////////////
@@ -50,7 +50,7 @@ for i = 1 %:length(network)
         end
         fclose(fid);
         
-        for n = 19 %1:ninsitu
+        for n = 1 %1:ninsitu
             statement = sprintf('Currently processing the %s data (case %d, station %d)', network(i), k, n);
             disp(statement)
             

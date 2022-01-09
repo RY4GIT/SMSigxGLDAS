@@ -13,6 +13,9 @@ seasontrans_duration = repelem(NaN,length(t_valley)-1,2);
 
 trans = ["dry2wet"; "wet2dry"];
 
+% Take the moving average of the data (5 days)
+smtt.(string(smtt.Properties.VariableNames(1))) = movmean(smtt.(string(smtt.Properties.VariableNames(1))), 5, 'omitnan');
+
 %% Main execution
 % Loop for transitions
 for t = 1:length(trans)
@@ -41,27 +44,32 @@ for t = 1:length(trans)
         seasonsm = smtt(timerange(trans_start0-days(30),trans_end0+days(30)),:);
         seasonsmvalue = table2array(seasonsm);
         
-        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.7 || isempty(seasonsmvalue) || length(seasonsmvalue) < 30
-            % do nothing
+        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.5 || isempty(seasonsmvalue)
+            % If there is too much NaN, or the timeseries is empty, do nothing
         else
             % find the actual dryest & wettest point during a season using max and min
-            t_min = find(seasonsmvalue == min(seasonsmvalue),1);
-            t_max = find(seasonsmvalue == max(seasonsmvalue),1);
+            nhalf = ceil(length(seasonsmvalue)/2);
             switch trans(t)
                 case "dry2wet"
+                    % The dryest point should be happening in the first half of the timeseries
+                    t_min = find(seasonsmvalue(1:nhalf,:) == min(seasonsmvalue(1:nhalf,:)),1);
                     % as dryest period is short, do not use wettest point for cutting out the TS
                     trans_start = seasonsm.Properties.RowTimes(t_min);
                     trans_end = trans_end0;
                     % Get the second start/end date with buffer
                     seasonsm = smtt(timerange(trans_start-days(30), trans_end+days(30)),:);
                 case "wet2dry"
+                    % The wettest point should be happening in the first half of the timeseries
+                    t_max = find(seasonsmvalue(1:nhalf,:) == max(seasonsmvalue(1:nhalf,:)),1);
                     % find the actual dryest & wettest point during a season using max and min
                     trans_start = seasonsm.Properties.RowTimes(t_max);
                     % should be happening later than wettest point
-                    t_min = find(seasonsmvalue == min(seasonsmvalue(t_min:end)), 1);
-                    trans_end = seasonsm.Properties.RowTimes(t_min);
+                    t_min = find(seasonsmvalue(t_max:end) == min(seasonsmvalue(t_max:end)), 1);
+                    trans_end = seasonsm.Properties.RowTimes(t_max+t_min-1);
+                    disp(trans_start);
+                    disp(trans_end);
                     % Get the second start/end date with buffer
-                    seasonsm = smtt(timerange(trans_start-days(60), trans_end+days(15)),:);
+                    seasonsm = smtt(timerange(trans_start-days(45), trans_end+days(15)),:);
             end
 
             % Remove unnecessary data
@@ -86,7 +94,7 @@ for t = 1:length(trans)
         % ====   Execute the analysis   ========
         % ======================================
         
-        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.5 || isempty(seasonsmvalue) || length(seasonsmvalue) < 50
+        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.5 || isempty(seasonsmvalue) || sum(~isnan(seasonsmvalue)) < 60
             % If there is too much NaN, or the timeseries is too short, skip the season and return NaN
             seasontrans_date(i,:) = NaN;
             seasontrans_duration(i,:) = NaN;
@@ -99,12 +107,12 @@ for t = 1:length(trans)
             I = ones(size(y,1),1);
             switch trans(t)
                 case "dry2wet"
-                    P0 =  [0  0.001   50      30   wp  fc];
+                    P0 =  [0  0.001   50      60   wp  fc];
                     Plb = [-5    0        0       1    0   0];
                     Pub = [1.5    0.1        150     150  1   1];
                     % [P1    P2       P3      P4   wilting_point field_capacity]
                 case "wet2dry"
-                    P0 =   [0.5   -0.001  50      30   fc  wp];
+                    P0 =   [0.5   -0.001  50      60   fc  wp];
                     Plb =  [0      -0.1       0       1    0   0];
                     Pub =  [2.0   0        150     150  1   1];
                     % [P1    P2       P3      P4   wilting_point field_capacity]

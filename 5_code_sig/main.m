@@ -17,7 +17,7 @@ network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
 %% Main execution
-for i = 3 %:length(network)
+for i = 1 %:length(network)
     % initiation
     record_depth = [];
     record_station = [];
@@ -28,7 +28,7 @@ for i = 3 %:length(network)
 
     [depth, nstation, ~, ninsitu, fn0] = io_siteinfo(network(i));
     
-    for k = 2 %:length(depth)
+    for k = 1 %:length(depth)
         
         %%
         % //////////////////////////////////////////////////
@@ -50,7 +50,7 @@ for i = 3 %:length(network)
         end
         fclose(fid);
         
-        for n = 1 %1:ninsitu
+        for n = 35 %1:ninsitu
             statement = sprintf('Currently processing the %s data (case %d, station %d)', network(i), k, n);
             disp(statement)
             
@@ -82,7 +82,7 @@ for i = 3 %:length(network)
 
             smtt = retime(smtt, 'regular', 'fillwithmissing', 'TimeStep', days(1));
             smtt = retime(smtt, 'regular', 'mean', 'TimeStep', days(1));
-            
+
             % Get time values 
             t_datenum = datenum(smtt.Properties.RowTimes);
             

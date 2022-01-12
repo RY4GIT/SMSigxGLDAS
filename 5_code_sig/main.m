@@ -28,7 +28,7 @@ for i = 1 %:length(network)
 
     [depth, nstation, ~, ninsitu, fn0] = io_siteinfo(network(i));
     
-    for k = 1 %:length(depth)
+    for k = 2 %:length(depth)
         
         %%
         % //////////////////////////////////////////////////
@@ -50,7 +50,7 @@ for i = 1 %:length(network)
         end
         fclose(fid);
         
-        for n = 35 %1:ninsitu
+        for n = 8 %1:ninsitu
             statement = sprintf('Currently processing the %s data (case %d, station %d)', network(i), k, n);
             disp(statement)
             
@@ -128,29 +128,33 @@ for i = 1 %:length(network)
     % Save the results 
     varnames = {'depth', 'station', 'insitu', 'gldas'};
 
-    sdate_dry2wet = table(record_depth, record_station, record_date_insitu(:,1), record_date_gldas(:,1));
-    sdate_dry2wet.Properties.VariableNames = varnames;
-    writetable(sdate_dry2wet, fullfile("..\8_out_stat", network(i), "seasontrans_sdate_dry2wet.csv"));
+    if ~isempty(record_date_insitu)
+        sdate_dry2wet = table(record_depth, record_station, record_date_insitu(:,1), record_date_gldas(:,1));
+        sdate_dry2wet.Properties.VariableNames = varnames;
+        writetable(sdate_dry2wet, fullfile("..\8_out_stat", network(i), "seasontrans_sdate_dry2wet.csv"));
+
+        edate_dry2wet = table(record_depth, record_station, record_date_insitu(:,2), record_date_gldas(:,2));
+        edate_dry2wet.Properties.VariableNames = varnames;
+        writetable(edate_dry2wet, fullfile("..\8_out_stat", network(i), "seasontrans_edate_dry2wet.csv"));
+
+        sdate_wet2dry = table(record_depth, record_station, record_date_insitu(:,3), record_date_gldas(:,3));
+        sdate_wet2dry.Properties.VariableNames = varnames;
+        writetable(sdate_wet2dry, fullfile("..\8_out_stat", network(i), "seasontrans_sdate_wet2dry.csv"));
+
+        edate_wet2dry = table(record_depth, record_station, record_date_insitu(:,4), record_date_gldas(:,4));
+        edate_wet2dry.Properties.VariableNames = varnames;
+        writetable(edate_wet2dry, fullfile("..\8_out_stat", network(i), "seasontrans_edate_wet2dry.csv"));
+    end
     
-    edate_dry2wet = table(record_depth, record_station, record_date_insitu(:,2), record_date_gldas(:,2));
-    edate_dry2wet.Properties.VariableNames = varnames;
-    writetable(edate_dry2wet, fullfile("..\8_out_stat", network(i), "seasontrans_edate_dry2wet.csv"));
-    
-    sdate_wet2dry = table(record_depth, record_station, record_date_insitu(:,3), record_date_gldas(:,3));
-    sdate_wet2dry.Properties.VariableNames = varnames;
-    writetable(sdate_wet2dry, fullfile("..\8_out_stat", network(i), "seasontrans_sdate_wet2dry.csv"));
-    
-    edate_wet2dry = table(record_depth, record_station, record_date_insitu(:,4), record_date_gldas(:,4));
-    edate_wet2dry.Properties.VariableNames = varnames;
-    writetable(edate_wet2dry, fullfile("..\8_out_stat", network(i), "seasontrans_edate_wet2dry.csv"));
-    
-    duration_dry2wet = table(record_depth, record_station, record_duration_insitu(:,1), record_duration_gldas(:,1));
-    duration_dry2wet.Properties.VariableNames = varnames;
-    writetable(duration_dry2wet, fullfile("..\8_out_stat", network(i), "seasontrans_duration_dry2wet.csv"));
-    
-    duration_wet2dry = table(record_depth, record_station, record_duration_insitu(:,2), record_duration_gldas(:,2));
-    duration_wet2dry.Properties.VariableNames = varnames;
-    writetable(duration_wet2dry, fullfile("..\8_out_stat", network(i), "seasontrans_duration_wet2dry.csv"));
+    if ~isempty(record_duration_insitu)
+        duration_dry2wet = table(record_depth, record_station, record_duration_insitu(:,1), record_duration_gldas(:,1));
+        duration_dry2wet.Properties.VariableNames = varnames;
+        writetable(duration_dry2wet, fullfile("..\8_out_stat", network(i), "seasontrans_duration_dry2wet.csv"));
+        
+        duration_wet2dry = table(record_depth, record_station, record_duration_insitu(:,2), record_duration_gldas(:,2));
+        duration_wet2dry.Properties.VariableNames = varnames;
+        writetable(duration_wet2dry, fullfile("..\8_out_stat", network(i), "seasontrans_duration_wet2dry.csv"));
+    end
     
 end
 

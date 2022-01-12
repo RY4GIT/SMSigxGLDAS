@@ -14,7 +14,7 @@ seasontrans_duration = repelem(NaN,length(t_valley)-1,2);
 trans = ["dry2wet"; "wet2dry"];
 
 % Take the moving average of the data (5 days)
-smtt.(string(smtt.Properties.VariableNames(1))) = movmean(smtt.(string(smtt.Properties.VariableNames(1))), 30, 'omitnan');
+smtt.(string(smtt.Properties.VariableNames(1))) = movmean(smtt.(string(smtt.Properties.VariableNames(1))), 7, 'omitnan');
 
 %% Main execution
 % Loop for transitions
@@ -66,8 +66,6 @@ for t = 1:length(trans)
                     % should be happening later than wettest point
                     t_min = find(seasonsmvalue(t_max:end) == min(seasonsmvalue(t_max:end)), 1);
                     trans_end = seasonsm.Properties.RowTimes(t_max+t_min-1);
-                    disp(trans_start);
-                    disp(trans_end);
                     % Get the second start/end date with buffer
                     seasonsm = smtt(timerange(trans_start-days(45), trans_end+days(15)),:);
             end
@@ -102,7 +100,7 @@ for t = 1:length(trans)
             % If there is enough number of data, execute the analysis with Piecewise linear regression
             
             % Define the model input & parameters
-            y = seasonsmvalue; %fillmissing(seasonsmvalue,'linear');
+            y = seasonsmvalue;
             x = [1:size(y,1)]';
             I = ones(size(y,1),1);
             switch trans(t)

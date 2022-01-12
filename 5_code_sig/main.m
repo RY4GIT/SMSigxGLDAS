@@ -155,7 +155,7 @@ for i = 1 %:length(network)
 end
 
 
-load handel
-sound(y,Fs)
+% load handel
+% sound(y,Fs)
 
 %% =========== END OF THE CODE ============

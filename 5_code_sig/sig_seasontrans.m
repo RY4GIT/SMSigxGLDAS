@@ -14,7 +14,7 @@ seasontrans_duration = repelem(NaN,length(t_valley)-1,2);
 trans = ["dry2wet"; "wet2dry"];
 
 % Take the moving average of the data (5 days)
-smtt.(string(smtt.Properties.VariableNames(1))) = movmean(smtt.(string(smtt.Properties.VariableNames(1))), 5, 'omitnan');
+smtt.(string(smtt.Properties.VariableNames(1))) = movmean(smtt.(string(smtt.Properties.VariableNames(1))), 30, 'omitnan');
 
 %% Main execution
 % Loop for transitions
@@ -44,7 +44,7 @@ for t = 1:length(trans)
         seasonsm = smtt(timerange(trans_start0-days(30),trans_end0+days(30)),:);
         seasonsmvalue = table2array(seasonsm);
         
-        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.5 || isempty(seasonsmvalue)
+        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.3 || isempty(seasonsmvalue)
             % If there is too much NaN, or the timeseries is empty, do nothing
         else
             % find the actual dryest & wettest point during a season using max and min
@@ -94,7 +94,7 @@ for t = 1:length(trans)
         % ====   Execute the analysis   ========
         % ======================================
         
-        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.5 || isempty(seasonsmvalue) || sum(~isnan(seasonsmvalue)) < 60
+        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.3 || isempty(seasonsmvalue) || sum(~isnan(seasonsmvalue)) < 60
             % If there is too much NaN, or the timeseries is too short, skip the season and return NaN
             seasontrans_date(i,:) = NaN;
             seasontrans_duration(i,:) = NaN;
@@ -102,7 +102,7 @@ for t = 1:length(trans)
             % If there is enough number of data, execute the analysis with Piecewise linear regression
             
             % Define the model input & parameters
-            y = fillmissing(seasonsmvalue,'linear');
+            y = seasonsmvalue; %fillmissing(seasonsmvalue,'linear');
             x = [1:size(y,1)]';
             I = ones(size(y,1),1);
             switch trans(t)

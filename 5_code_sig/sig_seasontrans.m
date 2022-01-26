@@ -1,7 +1,7 @@
 %% Signature code to obtain seasonal transition metrics
 
 function [seasontrans_date, seasontrans_duration] ...
-    = sig_seasontrans(smtt, t_valley, wp, fc, plot_results, data_label)
+    = sig_seasontrans(smtt, t_valley, P0_d2w, P0_w2d, plot_results, data_label)
 
 %% Initialization
 
@@ -47,13 +47,13 @@ for t = 1:length(trans)
         if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.3 || isempty(seasonsmvalue)
             % If there is too much NaN, or the timeseries is empty, do nothing
         else
-            % find the actual dryest & wettest point during a season using max and min
+            % find the actual dryest & wettest point during a season
             nhalf = ceil(length(seasonsmvalue)/2);
             switch trans(t)
                 case "dry2wet"
                     % The dryest point should be happening in the first half of the timeseries
                     t_min = find(seasonsmvalue(1:nhalf,:) == min(seasonsmvalue(1:nhalf,:)),1);
-                    % as dryest period is short, do not use wettest point for cutting out the TS
+                    % As dryest period is short, do not use wettest point for cutting out the TS
                     trans_start = seasonsm.Properties.RowTimes(t_min);
                     trans_end = trans_end0;
                     % Get the second start/end date with buffer
@@ -61,9 +61,9 @@ for t = 1:length(trans)
                 case "wet2dry"
                     % The wettest point should be happening in the first half of the timeseries
                     t_max = find(seasonsmvalue(1:nhalf,:) == max(seasonsmvalue(1:nhalf,:)),1);
-                    % find the actual dryest & wettest point during a season using max and min
+                    % Find the actual dryest & wettest point during a season using max and min
                     trans_start = seasonsm.Properties.RowTimes(t_max);
-                    % should be happening later than wettest point
+                    % The driest point should be happening later than wettest point
                     t_min = find(seasonsmvalue(t_max:end) == min(seasonsmvalue(t_max:end)), 1);
                     trans_end = seasonsm.Properties.RowTimes(t_max+t_min-1);
                     % Get the second start/end date with buffer
@@ -105,12 +105,12 @@ for t = 1:length(trans)
             I = ones(size(y,1),1);
             switch trans(t)
                 case "dry2wet"
-                    P0 =  [0  0.001   50      60   wp  fc];
+                    P0 =  P0_d2w;
                     Plb = [-5    0        0       1    0   0];
                     Pub = [1.5    0.1        150     150  1   1];
                     % [P1    P2       P3      P4   wilting_point field_capacity]
                 case "wet2dry"
-                    P0 =   [0.5   -0.001  50      60   fc  wp];
+                    P0 =   P0_w2d;
                     Plb =  [0      -0.1       0       1    0   0];
                     Pub =  [2.0   0        150     150  1   1];
                     % [P1    P2       P3      P4   wilting_point field_capacity]

@@ -14,7 +14,7 @@ seasontrans_duration = repelem(NaN,length(t_valley)-1,2);
 trans = ["dry2wet"; "wet2dry"];
 
 % Take the moving average of the data (5 days)
-smtt.(string(smtt.Properties.VariableNames(1))) = movmean(smtt.(string(smtt.Properties.VariableNames(1))), 7, 'omitnan');
+smtt.(string(smtt.Properties.VariableNames(1))) = movmean(smtt.(string(smtt.Properties.VariableNames(1))), 30, 'omitnan');
 
 %% Main execution
 % Loop for transitions
@@ -26,6 +26,8 @@ for t = 1:length(trans)
     % Loop for water years
     for i = 1:length(t_valley)-1 %cut out at every two peaks
 
+        % fprintf('%s: %d\n', trans(t), year(t_valley(i)))
+        
         % ======================================
         % ====   Crop the time series   ========
         % ======================================
@@ -46,6 +48,11 @@ for t = 1:length(trans)
         
         if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.3 || isempty(seasonsmvalue)
             % If there is too much NaN, or the timeseries is empty, do nothing
+            if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.3
+                warning('data contains too much NaN')
+            elseif isempty(seasonsmvalue)
+                warning('timeseries was empty')
+            end
         else
             % find the actual dryest & wettest point during a season
             nhalf = ceil(length(seasonsmvalue)/2);
@@ -92,15 +99,23 @@ for t = 1:length(trans)
         % ====   Execute the analysis   ========
         % ======================================
         
-        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.3 || isempty(seasonsmvalue) || sum(~isnan(seasonsmvalue)) < 60
+        if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.3 || isempty(seasonsmvalue) || sum(~isnan(seasonsmvalue)) < 90
             % If there is too much NaN, or the timeseries is too short, skip the season and return NaN
             seasontrans_date(i,:) = NaN;
             seasontrans_duration(i,:) = NaN;
+            if sum(isnan(seasonsmvalue))/size(seasonsmvalue,1) > 0.3
+                warning('data contains too much NaN')
+            elseif isempty(seasonsmvalue)
+                warning('timeseries was empty')
+            elseif sum(~isnan(seasonsmvalue)) < 90
+                warning('data was short')
+            end
         else
             % If there is enough number of data, execute the analysis with Piecewise linear regression
             
             % Define the model input & parameters
-            y = seasonsmvalue;
+            y0 = seasonsmvalue;
+            y = y0(find(~any(isnan(y0),2),1,'first'):find(~any(isnan(y0),2),1,'last'),:); % truncate NaNs at the beginning and end
             x = [1:size(y,1)]';
             I = ones(size(y,1),1);
             switch trans(t)
@@ -124,16 +139,22 @@ for t = 1:length(trans)
             b = [];
             Aeq = [];
             beq = [];
-            options = optimoptions('fmincon','Display','off'); % turn off the optimization results
+            options = optimoptions('fmincon' ,'Display','off'); % turn off the optimization results
             try
                 Pfit(i,:) = fmincon(piecewisemodel,P0,A,b,Aeq,beq,Plb,Pub,nonlcon,options);
             catch
                 Pfit(i,:) = NaN(1,6);
+                warning('optimization failed')
             end
             
             % If the wp and fc coincides, or transition is shorter than 7 days (likely to have failed), reject it.
             if (abs(Pfit(i,6) - Pfit(i,5)) < 1.0E-03) || Pfit(i,4) < 7
                 Pfit(i,:) = NaN(1,6);    
+                if (abs(Pfit(i,6) - Pfit(i,5)) < 1.0E-03)
+                    warning('fc and wp coincides during optimization')
+                elseif Pfit(i,4) < 7
+                    warning('transition was unplausibly short')
+                end
             end
             
             % Get signatures

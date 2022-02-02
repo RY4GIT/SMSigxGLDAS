@@ -17,7 +17,7 @@ network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
 %% Main execution
-for i = 1 %:length(network)
+for i = 2 %1:length(network)
     % initiation
     record_depth = [];
     record_station = [];
@@ -32,7 +32,7 @@ for i = 1 %:length(network)
     fn = fullfile(in_path, network(i), 'ts_without_2seasons.txt');
     stationflag = readmatrix(fn);
 
-    for k = 2 %1:length(depth)
+    for k = 1 %:length(depth)
         
         %%
         % //////////////////////////////////////////////////
@@ -54,11 +54,11 @@ for i = 1 %:length(network)
         end
         fclose(fid);
 
-        for n = 16 %1:ninsitu
+        for n = 18 %1:ninsitu
             statement = sprintf('Currently processing the %s data (case %d, station %d)', network(i), k, n);
             disp(statement)
 
-            if ismember(n, stationflag)
+            if depth(k) ~= 10 && ismember(n, stationflag)
                 continue
             end
             
@@ -113,26 +113,33 @@ for i = 1 %:length(network)
             % //////////////////////////////////////////////////
  
             % Send to seasonal transition signature, get results 
-            [fc, wp] = sig_fcwp(smtt.insitu, smtt(:,1), false);
+            [fc_insitu, wp_insitu] = sig_fcwp(smtt.insitu, smtt(:,1), false);
+            [fc_gldas, wp_gldas] = sig_fcwp(smtt.gldas, smtt(:,2), false);
             
-            % Set initial parameters to fit for the network
+            % Set initial parameters to fit for the network (not sure if it is necessary tho...)
             % P0_d2w/w2d = [P1(shift in y-axis) P2(slope) P3(trans_start) P4(duration) wilting_point/field capacity(constraints) wilting_point/field capacity(constraints)]
             switch network(i)
                 case "Oznet"
-                    P0_d2w = [0     0.001   20   150  wp  fc];
-                    P0_w2d = [0.5   -0.001  60   60   fc  wp];
+                    P0_d2w_insitu = [0     0.001   20   150  wp_insitu  fc_insitu];
+                    P0_w2d_insitu = [0.5   -0.001  60   60   fc_insitu  wp_insitu];
+                    P0_d2w_gldas = [0     0.001   20   150  wp_gldas  fc_gldas];
+                    P0_w2d_gldas = [0.5   -0.001  60   60   fc_gldas  wp_gldas];
                 case "USCRN"
-                    P0_d2w = [0  0.001   20      60   wp  fc];
-                    P0_w2d = [0.5   -0.001  60      60   fc  wp];
+                    P0_d2w_insitu = [0     0.001   10   100  0.4  0.7];
+                    P0_w2d_insitu = [0.5   -0.001  10   100   0.7  0.4];
+                    P0_d2w_gldas = [0     0.001   10   100  0.4  0.7];
+                    P0_w2d_gldas = [0.5   -0.001  10   100   0.7  0.4];
                 case "SCAN"
-                    P0_d2w = [0  0.001   20      60   wp  fc];
-                    P0_w2d = [0.5   -0.001  60      60   fc  wp];
+                    P0_d2w_insitu = [0     0.001   20   60  wp_insitu  fc_insitu];
+                    P0_w2d_insitu = [0.5   -0.001  60   60   fc_insitu  wp_insitu];
+                    P0_d2w_gldas = [0     0.001   20   150  wp_gldas  fc_gldas];
+                    P0_w2d_gldas = [0.5   -0.001  60   60   fc_gldas  wp_gldas];
             end
             
             [seasontrans_date_insitu, seasontrans_duration_insitu] ...
-            = sig_seasontrans(smtt(:,1), t_valley, P0_d2w, P0_w2d, true, 'insitu');
+            = sig_seasontrans(smtt(:,1), t_valley, P0_d2w_insitu, P0_w2d_insitu, true, 'insitu');
             [seasontrans_date_gldas, seasontrans_duration_gldas] ...
-            = sig_seasontrans(smtt(:,2), t_valley, P0_d2w, P0_w2d, true, 'gldas');
+            = sig_seasontrans(smtt(:,2), t_valley, P0_d2w_gldas, P0_w2d_gldas, true, 'gldas');
 
             % Record the results 
             record_depth = [record_depth; repelem(depth(k), size(seasontrans_date_insitu,1), 1)];

@@ -77,12 +77,24 @@ for s = 1:size(sigT,1)
             end
 
             % Create scatter plot & display correlation coefficient
+            if depth(k) == 10
+                disp_name = sprintf('%s (Basin average), R = %.2f', networks(i), r(1,1));
+            else
+                disp_name = sprintf('%s (%.2f cm), R = %.2f', networks(i), depth(k), r(1,1));
+            end
             scatter(data_insitu(selected), data_gldas(selected), 30, c, string(sigT.marker(s)), 'filled', ...
                 'MarkerFaceColor', c, 'MarkerEdgeColor', e, 'MarkerFaceAlpha', a, ...
-                'DisplayName', sprintf('%s (%d cm), R = %.2f', networks(i), depth(k), r(1,1)));
+                'DisplayName', disp_name);
             hold on;
-            
+
         end
+
+%         % Add a trendline
+%         idx = ~isnan(data_insitu) &  ~isnan(data_gldas);
+%         p = polyfit(data_insitu(idx), data_gldas(idx), 1);
+%         px = [-100 400];
+%         py = polyval(p, px);
+%         plot(px, py, 'LineStyle', '--', 'Color', c); hold on;
         
     end
     

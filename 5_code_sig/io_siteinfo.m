@@ -10,7 +10,7 @@ switch network
         truedepth = ["2.5"; "4"; "Average"];
         nstation = 38;
         ninsitu = [38; 38; 1];
-        fn0 = ["depth_3cm.csv"; "depth_4cm.csv"; "depth_0_10cm.csv"];
+        fn0 = ["depth_3cm_arid.csv"; "depth_4cm_arid.csv"; "average.csv"];
     case "USCRN"
         depth = [5; 10];
         truedepth = ["5"; "Average"];

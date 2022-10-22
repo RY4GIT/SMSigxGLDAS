@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/11_figures" />
+      <excludeFolder url="file://$MODULE_DIR$/4_data/GIS" />
+      <excludeFolder url="file://$MODULE_DIR$/10_out_plot" />
+      <excludeFolder url="file://$MODULE_DIR$/9_code_plot" />
+      <excludeFolder url="file://$MODULE_DIR$/8_out_stat" />
+      <excludeFolder url="file://$MODULE_DIR$/7_code_stat" />
+      <excludeFolder url="file://$MODULE_DIR$/6_out_sig" />
+      <excludeFolder url="file://$MODULE_DIR$/5_code_sig" />
+      <excludeFolder url="file://$MODULE_DIR$/3_code_qaqc" />
+      <excludeFolder url="file://$MODULE_DIR$/2_data_selected" />
+      <excludeFolder url="file://$MODULE_DIR$/0_data_raw" />
+      <excludeFolder url="file://$MODULE_DIR$/ref" />
+      <excludeFolder url="file://$MODULE_DIR$/trash" />
+      <excludeFolder url="file://$MODULE_DIR$/doc" />
+      <excludeFolder url="file://$MODULE_DIR$/4_data/Oznet" />
+      <excludeFolder url="file://$MODULE_DIR$/4_data/SCAN" />
+      <excludeFolder url="file://$MODULE_DIR$/4_data/USCRN" />
+      <excludeFolder url="file://$MODULE_DIR$/GIS" />
+      <excludeFolder url="file://$MODULE_DIR$/9_figures" />
+      <excludeFolder url="file://$MODULE_DIR$/8_out_plot" />
+      <excludeFolder url="file://$MODULE_DIR$/2_data_selected_v2" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.8 (geog580)" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

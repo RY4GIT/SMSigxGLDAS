@@ -14,9 +14,11 @@ T = length(y);
 % hold on
 
 % Detrend the data using moving average using 1-year window (8760 hrs)
-yS = movmean(y,8760*2,'omitnan');
-% Repeating the first and last observations six times to prevent data loss. 
-yS(1:6) = yS(7); yS(T-5:T) = yS(T-6);
+yS = movmean(y, 8760*2, 'omitnan');
+% Repeating the first and last observations six times to prevent data loss.
+% This should be longer? 
+yS(1:6) = yS(7);
+yS(T-5:T) = yS(T-6);
 
 % Divide the original series by the smoothed series to detrend the data.
 % Add the moving average trend estimate to the observed time series plot. 

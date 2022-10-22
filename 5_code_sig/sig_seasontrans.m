@@ -168,19 +168,43 @@ for t = 1:length(trans)
         % ======================================
             if plot_results
                 figure(i+(t-1)*length(t_valley));
+                
+                ax = gca; 
+                ax.FontSize = 16; 
+                % fontsize(gcf,16)
                 x250d = [1:250]';
                 piecewisemode1 = @(P,x) P(1) + P(2)*x + P(2)*plusfun(P(3)-x) + (-P(2))*plusfun(x-(P(3)+P(4))) + 0*P(5) + 0*P(6);
                 modelpred = piecewisemode1(Pfit(i,:),x250d);
                 
-                plot(seasonsm.Properties.RowTimes(1)+days(x),y,'-','DisplayName', sprintf('%s (%3.f days)', data_label, seasontrans_duration(i,t))); hold on;
-                plot(seasonsm.Properties.RowTimes(1)+days(x250d),modelpred,'r-','LineWidth',2,'HandleVisibility','off'); hold on;
-                if ~isnan(Pfit(i,3))
-                    xline(seasonsm.Properties.RowTimes(1)+ days(Pfit(i,3)),'r','LineWidth',1.5,'HandleVisibility','off');
-                    xline(seasonsm.Properties.RowTimes(1)+ days(Pfit(i,3)+Pfit(i,4)),'r','LineWidth',1.5,'HandleVisibility','off');
+                if data_label == "gldas"
+                    lcolor = [239,138,98]./255;
+                    data_label_name = "GLDAS";
+                else data_label == "insitu"
+                    lcolor = [103,169,207]./255;
+                    data_label_name = "In-situ";
                 end
-                xlabel('Time'); ylabel('VSWC [m^3/m^3]'); legend;
-                title(sprintf('%s - %s',seasonsm.Properties.RowTimes(1), seasonsm.Properties.RowTimes(end)));
+                
+                plot(seasonsm.Properties.RowTimes(1)+days(x), y, '-', 'Color', lcolor, ...
+                    'DisplayName', sprintf('%s (%3.f days)', data_label_name, seasontrans_duration(i,t))); hold on;
+                plot(seasonsm.Properties.RowTimes(1)+days(x250d), modelpred, '-', 'Color', lcolor,'LineWidth',2, ...
+                    'HandleVisibility','off'); hold on;
+                
+                if ~isnan(Pfit(i,3))
+                    xline(seasonsm.Properties.RowTimes(1)+ days(Pfit(i,3)),'Color', lcolor,'LineWidth',1.5, 'LineStyle', '--', 'HandleVisibility','off');
+                    xline(seasonsm.Properties.RowTimes(1)+ days(Pfit(i,3)+Pfit(i,4)),'Color', lcolor,'LineWidth', 1.5, 'LineStyle', '--', 'HandleVisibility','off');
+                end
+                xlabel('Time'); ylabel({'Detrended volmetric';'soil water content [m^3/m^3]'}); ylim([0.4 0.65])
+                if trans(t) == "wet2dry"
+                    legend('Location', 'northeast');
+                elseif trans(t) == "dry2wet"
+                    legend('Location', 'northwest');
+                end
+                
+                xlim([trans_start0-days(30) trans_end0+days(30)]);
+                
+                % title(sprintf('%s - %s',seasonsm.Properties.RowTimes(1), seasonsm.Properties.RowTimes(end)));
                 hold on;
+                 
             end
             
         end

@@ -1,0 +1,7 @@
+sig_abb,sig_fullname,ylabel,lowerlim,upperlim,marker
+seasontrans_sdate_dry2wet,Start of wetting,Day of the year,-100,400,o
+seasontrans_edate_dry2wet,End of wetting,Day of the year,-100,400,o
+seasontrans_sdate_wet2dry,Start of drying,Day of the year,-100,400,o
+seasontrans_edate_wet2dry,End of drying,Day of the year,-100,400,o
+seasontrans_duration_wet2dry,Duration of wet to dry transition,Days,1,200,o
+seasontrans_duration_dry2wet,Duration of dry to wet transition,Days,1,200,o

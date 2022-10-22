@@ -9,19 +9,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-os.chdir('G:/Shared drives/Ryoko and Hilary/GLDAS')
-out_path = 'G:/Shared drives/Ryoko and Hilary/GLDAS/2_data_processed'
+os.chdir('G:/Shared drives/Ryoko and Hilary/SMSigxGLDAS')
+out_path = 'G:/Shared drives/Ryoko and Hilary/SMSigxGLDAS/2_data_selected_v2'
 
 def save_data(network_name, in_path):
-    in_path = 'G:/Shared drives/Ryoko and Hilary/GLDAS/0_data_raw/Data_separate_files_20000101_20200229_6817_FTVy_20210521'
-    data_uscrn = ISMN_Interface(in_path, network=[network_name])
+    in_path = 'G:/Shared drives/Ryoko and Hilary/GLDAS/0_data_raw/Data_separate_files_header_20090731_20140930_6817_CFaZ_20220330'
+    data_net = ISMN_Interface(in_path, network=[network_name])
 
-    for network, station, sensor in data_uscrn.collection \
+    for network, station, sensor in data_net.collection \
             .iter_sensors(variable='soil_moisture',
                           depth=Depth(0.,0.05),
                           filter_meta_dict={'climate_KG':['BWk', 'BWh', 'BWn', 'BSk', 'BSh', 'BSn']}):
 
         data = sensor.read_data()
+        # print(data)
         data.loc[data['soil_moisture_flag'] != 'G', 'soil_moisture'] = np.nan
 
         # data.save()

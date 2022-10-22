@@ -13,11 +13,14 @@ cd("G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\5_code_sig\");
 in_path = "..\4_data\";
 
 % Site information
-network = ["Oznet"; "USCRN"; "SCAN"];
+network = ["Oznet"]; %["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
 
 %% Main execution
-for i = 2 %1:length(network)
+for i = 1:length(network)
+    
+    close all;
+    
     % initiation
     record_depth = [];
     record_station = [];
@@ -32,7 +35,7 @@ for i = 2 %1:length(network)
     fn = fullfile(in_path, network(i), 'ts_without_2seasons.txt');
     stationflag = readmatrix(fn);
 
-    for k = 1 %:length(depth)
+    for k = length(depth) %1:length(depth) %1:length(depth)
         
         %%
         % //////////////////////////////////////////////////
@@ -54,7 +57,7 @@ for i = 2 %1:length(network)
         end
         fclose(fid);
 
-        for n = 18 %1:ninsitu
+        for n = 1:ninsitu(k)
             statement = sprintf('Currently processing the %s data (case %d, station %d)', network(i), k, n);
             disp(statement)
 
@@ -160,31 +163,44 @@ for i = 2 %1:length(network)
     if ~isempty(record_date_insitu)
         sdate_dry2wet = table(record_depth, record_station, record_date_insitu(:,1), record_date_gldas(:,1));
         sdate_dry2wet.Properties.VariableNames = varnames;
-        writetable(sdate_dry2wet, fullfile("..\8_out_stat", network(i), "seasontrans_sdate_dry2wet.csv"));
+        writetable(sdate_dry2wet, fullfile("..\8_out_stat\temp", network(i), "seasontrans_sdate_dry2wet.csv"));
 
         edate_dry2wet = table(record_depth, record_station, record_date_insitu(:,2), record_date_gldas(:,2));
         edate_dry2wet.Properties.VariableNames = varnames;
-        writetable(edate_dry2wet, fullfile("..\8_out_stat", network(i), "seasontrans_edate_dry2wet.csv"));
+        writetable(edate_dry2wet, fullfile("..\8_out_stat\temp", network(i), "seasontrans_edate_dry2wet.csv"));
 
         sdate_wet2dry = table(record_depth, record_station, record_date_insitu(:,3), record_date_gldas(:,3));
         sdate_wet2dry.Properties.VariableNames = varnames;
-        writetable(sdate_wet2dry, fullfile("..\8_out_stat", network(i), "seasontrans_sdate_wet2dry.csv"));
+        writetable(sdate_wet2dry, fullfile("..\8_out_stat\temp", network(i), "seasontrans_sdate_wet2dry.csv"));
 
         edate_wet2dry = table(record_depth, record_station, record_date_insitu(:,4), record_date_gldas(:,4));
         edate_wet2dry.Properties.VariableNames = varnames;
-        writetable(edate_wet2dry, fullfile("..\8_out_stat", network(i), "seasontrans_edate_wet2dry.csv"));
+        writetable(edate_wet2dry, fullfile("..\8_out_stat\temp", network(i), "seasontrans_edate_wet2dry.csv"));
     end
     
     if ~isempty(record_duration_insitu)
         duration_dry2wet = table(record_depth, record_station, record_duration_insitu(:,1), record_duration_gldas(:,1));
         duration_dry2wet.Properties.VariableNames = varnames;
-        writetable(duration_dry2wet, fullfile("..\8_out_stat", network(i), "seasontrans_duration_dry2wet.csv"));
+        writetable(duration_dry2wet, fullfile("..\8_out_stat\temp", network(i), "seasontrans_duration_dry2wet.csv"));
         
         duration_wet2dry = table(record_depth, record_station, record_duration_insitu(:,2), record_duration_gldas(:,2));
         duration_wet2dry.Properties.VariableNames = varnames;
-        writetable(duration_wet2dry, fullfile("..\8_out_stat", network(i), "seasontrans_duration_wet2dry.csv"));
+        writetable(duration_wet2dry, fullfile("..\8_out_stat\temp", network(i), "seasontrans_duration_wet2dry.csv"));
     end
     
+    
+%     figHandles = findall(0,'Type','figure');
+%      
+%      % Save first figure
+%      fn = sprintf("plots_%s", network(i));
+%      export_fig(fn, '-pdf', figHandles(1));
+% 
+%      % Loop through figures 2:end
+%      for n_fig = 2:numel(figHandles)
+%          export_fig(fn, '-pdf', figHandles(n_fig), '-append')
+%      end
+
+        
 end
 
 

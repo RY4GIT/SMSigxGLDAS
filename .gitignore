@@ -1,0 +1,15 @@
+0_data_raw/*
+2_data_selected/*
+2_data_selected_v2/SCAN/*
+2_data_selected_v2/USCRN/*
+2_data_selected_v2/OZNET/*
+4_data/*
+6_out_stat/*.zip
+8_out_plot/*
+9_figures/*
+doc/*
+GIS/*
+ref/*
+trash/*
+desktop.ini
+.idea/*

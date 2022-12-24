@@ -15,7 +15,7 @@ in_path = "..\4_data\";
 % Site information
 network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
-data_type = "combined"; %"combined_weighted";
+data_type = "combined_weighted"; %"combined";
 plot_results = false;
 
 %% Main execution

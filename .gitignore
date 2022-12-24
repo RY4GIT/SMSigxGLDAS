@@ -1,3 +1,4 @@
+*.png
 0_data_raw/*
 2_data_selected/*
 2_data_selected_v2/SCAN/*

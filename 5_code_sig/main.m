@@ -13,9 +13,9 @@ cd("G:\Shared drives\Ryoko and Hilary\SMSigxGLDAS\5_code_sig\");
 in_path = "..\4_data\";
 
 % Site information
-network = ["Oznet"]; %["Oznet"; "USCRN"; "SCAN"];
+network = ["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
-data_type = "combined";
+data_type = "combined"; %"combined_weighted";
 plot_results = false;
 
 %% Main execution
@@ -37,7 +37,7 @@ for i = 1:length(network)
     fn = fullfile(in_path, network(i), 'ts_without_2seasons.txt');
     stationflag = readmatrix(fn);
 
-    for k = length(depth) %1:length(depth)
+    for k = 1:length(depth)
         
         %%
         % //////////////////////////////////////////////////
@@ -49,7 +49,19 @@ for i = 1:length(network)
         fid = fopen(fn, 'r');
         if depth(k) ~= 10
             % for sensorwise data
-            smtt0 = textscan(fid,'%d %q %f %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
+            if data_type == "combined"
+                smtt0 = textscan(fid,'%d %q %f %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
+                sid_cells = smtt0{1};
+                date_cells = smtt0{2};
+                insitu_data_cells = smtt0{3};
+                gldas_data_cells = smtt0{4};
+            elseif data_type == "combined_weighted"
+                smtt0 = textscan(fid,'%q %d %f %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
+                sid_cells = smtt0{2};
+                date_cells = smtt0{1};
+                insitu_data_cells = smtt0{3};
+                gldas_data_cells = smtt0{4};
+            end
         elseif i == 1
             % for watershed average data
             smtt0 = textscan(fid,'%q %f %f','HeaderLines',1,'DateLocale','en_US','Delimiter',',');
@@ -70,10 +82,10 @@ for i = 1:length(network)
             % Read each station data 
             if depth(k) ~= 10
             % for sensorwise data
-                n_rows = find(smtt0{1} == n);
-                smtt_insitu = timetable(datetime(smtt0{2}),smtt0{3});
+                n_rows = find(sid_cells == n);
+                smtt_insitu = timetable(datetime(date_cells), insitu_data_cells, 'VariableNames', {'Var1'});
                 smtt_insitu = smtt_insitu(n_rows,'Var1');
-                smtt_gldas = timetable(datetime(smtt0{2}),smtt0{4});
+                smtt_gldas = timetable(datetime(date_cells), gldas_data_cells, 'VariableNames', {'Var1'});
                 smtt_gldas = smtt_gldas(n_rows,'Var1');
             % for watershed average data
             else

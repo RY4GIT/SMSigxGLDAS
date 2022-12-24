@@ -15,6 +15,8 @@ in_path = "..\4_data\";
 % Site information
 network = ["Oznet"]; %["Oznet"; "USCRN"; "SCAN"];
 obs = ["gldas";"insitu"];
+data_type = "combined";
+plot_results = false;
 
 %% Main execution
 for i = 1:length(network)
@@ -35,7 +37,7 @@ for i = 1:length(network)
     fn = fullfile(in_path, network(i), 'ts_without_2seasons.txt');
     stationflag = readmatrix(fn);
 
-    for k = length(depth) %1:length(depth) %1:length(depth)
+    for k = length(depth) %1:length(depth)
         
         %%
         % //////////////////////////////////////////////////
@@ -43,7 +45,7 @@ for i = 1:length(network)
         % //////////////////////////////////////////////////
         
         % Read data 
-        fn = fullfile(in_path, network(i), "combined", fn0(k));
+        fn = fullfile(in_path, network(i), data_type, fn0(k));
         fid = fopen(fn, 'r');
         if depth(k) ~= 10
             % for sensorwise data
@@ -123,10 +125,10 @@ for i = 1:length(network)
             % P0_d2w/w2d = [P1(shift in y-axis) P2(slope) P3(trans_start) P4(duration) wilting_point/field capacity(constraints) wilting_point/field capacity(constraints)]
             switch network(i)
                 case "Oznet"
-                    P0_d2w_insitu = [0     0.001   20   150  wp_insitu  fc_insitu];
-                    P0_w2d_insitu = [0.5   -0.001  60   60   fc_insitu  wp_insitu];
-                    P0_d2w_gldas = [0     0.001   20   150  wp_gldas  fc_gldas];
-                    P0_w2d_gldas = [0.5   -0.001  60   60   fc_gldas  wp_gldas];
+                    P0_d2w_insitu = [0     0.001   20   150  wp_insitu-0.1  fc_insitu+0.1];
+                    P0_w2d_insitu = [0.5   -0.001  60   60   fc_insitu+0.1  wp_insitu-0.1];
+                    P0_d2w_gldas = [0     0.001   20   150  wp_gldas-0.1  fc_gldas+0.1];
+                    P0_w2d_gldas = [0.5   -0.001  60   60   fc_gldas+0.1  wp_gldas-0.1];
                 case "USCRN"
                     P0_d2w_insitu = [0     0.001   10   100  0.4  0.7];
                     P0_w2d_insitu = [0.5   -0.001  10   100   0.7  0.4];
@@ -140,9 +142,9 @@ for i = 1:length(network)
             end
             
             [seasontrans_date_insitu, seasontrans_duration_insitu] ...
-            = sig_seasontrans(smtt(:,1), t_valley, P0_d2w_insitu, P0_w2d_insitu, true, 'insitu');
+            = sig_seasontrans(smtt(:,1), t_valley, P0_d2w_insitu, P0_w2d_insitu, plot_results, 'insitu');
             [seasontrans_date_gldas, seasontrans_duration_gldas] ...
-            = sig_seasontrans(smtt(:,2), t_valley, P0_d2w_gldas, P0_w2d_gldas, true, 'gldas');
+            = sig_seasontrans(smtt(:,2), t_valley, P0_d2w_gldas, P0_w2d_gldas, plot_results, 'gldas');
 
             % Record the results 
             record_depth = [record_depth; repelem(depth(k), size(seasontrans_date_insitu,1), 1)];
@@ -160,32 +162,37 @@ for i = 1:length(network)
     % Save the results 
     varnames = {'depth', 'station', 'insitu', 'gldas'};
 
+    output_path = fullfile("..\6_out_stat\temp", data_type, network(i));
+    if ~exist(output_path, 'dir')
+       mkdir(output_path)
+    end
+
     if ~isempty(record_date_insitu)
         sdate_dry2wet = table(record_depth, record_station, record_date_insitu(:,1), record_date_gldas(:,1));
         sdate_dry2wet.Properties.VariableNames = varnames;
-        writetable(sdate_dry2wet, fullfile("..\8_out_stat\temp", network(i), "seasontrans_sdate_dry2wet.csv"));
+        writetable(sdate_dry2wet, fullfile(output_path, "seasontrans_sdate_dry2wet.csv"));
 
         edate_dry2wet = table(record_depth, record_station, record_date_insitu(:,2), record_date_gldas(:,2));
         edate_dry2wet.Properties.VariableNames = varnames;
-        writetable(edate_dry2wet, fullfile("..\8_out_stat\temp", network(i), "seasontrans_edate_dry2wet.csv"));
+        writetable(edate_dry2wet, fullfile(output_path, "seasontrans_edate_dry2wet.csv"));
 
         sdate_wet2dry = table(record_depth, record_station, record_date_insitu(:,3), record_date_gldas(:,3));
         sdate_wet2dry.Properties.VariableNames = varnames;
-        writetable(sdate_wet2dry, fullfile("..\8_out_stat\temp", network(i), "seasontrans_sdate_wet2dry.csv"));
+        writetable(sdate_wet2dry, fullfile(output_path, "seasontrans_sdate_wet2dry.csv"));
 
         edate_wet2dry = table(record_depth, record_station, record_date_insitu(:,4), record_date_gldas(:,4));
         edate_wet2dry.Properties.VariableNames = varnames;
-        writetable(edate_wet2dry, fullfile("..\8_out_stat\temp", network(i), "seasontrans_edate_wet2dry.csv"));
+        writetable(edate_wet2dry, fullfile(output_path, "seasontrans_edate_wet2dry.csv"));
     end
     
     if ~isempty(record_duration_insitu)
         duration_dry2wet = table(record_depth, record_station, record_duration_insitu(:,1), record_duration_gldas(:,1));
         duration_dry2wet.Properties.VariableNames = varnames;
-        writetable(duration_dry2wet, fullfile("..\8_out_stat\temp", network(i), "seasontrans_duration_dry2wet.csv"));
+        writetable(duration_dry2wet, fullfile(output_path, "seasontrans_duration_dry2wet.csv"));
         
         duration_wet2dry = table(record_depth, record_station, record_duration_insitu(:,2), record_duration_gldas(:,2));
         duration_wet2dry.Properties.VariableNames = varnames;
-        writetable(duration_wet2dry, fullfile("..\8_out_stat\temp", network(i), "seasontrans_duration_wet2dry.csv"));
+        writetable(duration_wet2dry, fullfile(output_path, "seasontrans_duration_wet2dry.csv"));
     end
     
     

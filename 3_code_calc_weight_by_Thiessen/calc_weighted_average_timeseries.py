@@ -10,13 +10,13 @@ warnings.filterwarnings('ignore')
 # metadata_filename = 'SpatialJoin_AU_Oznet_v2.csv'
 # timeseriesdata_filename = 'depth_3cm_arid.csv'
 
-network = 'SCAN'
-metadata_filename = 'SpatialJoin_CONUS_SCAN_v2.csv'
-timeseriesdata_filename = 'SCAN.csv'
-
 # network = 'SCAN'
 # metadata_filename = 'SpatialJoin_CONUS_SCAN_v2.csv'
 # timeseriesdata_filename = 'SCAN.csv'
+
+network = 'USCRN'
+metadata_filename = 'SpatialJoin_CONUS_USCRN_v2.csv'
+timeseriesdata_filename = 'USCRN.csv'
 
 # Set path
 input_path = r"3_code_calc_weight_by_Thiessen\counting_sensors_per_grids"
@@ -59,7 +59,7 @@ for i, grid_n in enumerate(unique_gridid):
             weighted_insitu_value = sum(ts_a_day['insitu'] * ts_a_day['scaled_weight'])
         
             newline_df_weighted = pd.DataFrame(data={'ID':[ts_a_day['sid'].values[0]], 'date':[target_date], 'insitu':[weighted_insitu_value], 'gldas':[ ts_a_day['gldas'].values[0]]})
-            if j==0:
+            if not 'df_weighted' in globals():
                 df_weighted = newline_df_weighted
             else:
                 df_weighted = pd.concat([df_weighted, newline_df_weighted], ignore_index=True)
@@ -99,16 +99,18 @@ for i, grid_n in enumerate(unique_gridid):
         indexMergedStation = df_sensor_timeseries_overwritten[df_sensor_timeseries_overwritten['ID']==sid[k]].index
         df_sensor_timeseries_overwritten.drop(indexMergedStation, inplace=True)
         
+    del df_weighted
 
 df_sensor_timeseries_overwritten['date'] = pd.to_datetime(df_sensor_timeseries_overwritten['date'])
 df_sensor_timeseries_overwritten.set_index('date', inplace=True)
     
 final_timeseries = pd.concat([df_sensor_timeseries_overwritten, df_weighted_allgrids])
 
+
 final_timeseries['date'] = final_timeseries.index
 final_timeseries['date'] = final_timeseries['date'].dt.strftime("%m/%d/%Y")
-df_weighted.sort_values(by='date', inplace=True)
-df_weighted.sort_values(by='ID', inplace=True)
+final_timeseries.sort_index(inplace=True)
+final_timeseries.sort_values(by='ID', inplace=True)
 
 # Save 
 final_timeseries = final_timeseries[['date', 'ID', 'insitu','gldas']]

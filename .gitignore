@@ -1,5 +1,6 @@
 *.png
 *.xml
+*.pdf
 
 0_data_raw/*
 2_data_selected/*
@@ -29,15 +30,20 @@
 !4_data/SCAN/stations_for_stat_5cm.csv
 !4_data/USCRN/stations_for_seasonsig_5cm.csv
 !4_data/USCRN/stations_for_stat_5cm.csv
-
 !4_data/Oznet/combined/depth_3cm_arid.csv
 !4_data/Oznet/combined/depth_4cm_arid.csv
+!4_data/Oznet/combined/average.csv
 !4_data/Oznet/combined_weighted/depth_3cm_arid.csv
 !4_data/Oznet/combined_weighted/depth_4cm_arid.csv
+!4_data/Oznet/combined/average.csv
 !4_data/SCAN/combined/SCAN.csv
 !4_data/SCAN/combined_weighted/SCAN.csv
+!4_data/SCAN/combined/average.csv
+!4_data/SCAN/combined_weighted/average.csv
 !4_data/USCRN/combined/USCRN.csv
 !4_data/USCRN/combined_weighted/USCRN.csv
+!4_data/USCRN/combined/average.csv
+!4_data/USCRN/combined_weighted/average.csv
 
 6_out_stat/*.zip
 8_out_plot/*

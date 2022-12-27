@@ -1,10 +1,11 @@
+%% Run this, and them plot_scatter_main.m
 function [] = stat_main()
 
 %% Preparation
 close all; clear all;
 
 % Set path
-cd("G:\Shared drives\Ryoko and Hilary\SMSigxgldas\9_code_plot");
+cd("G:\Shared drives\Ryoko and Hilary\SMSigxgldas\7_code_plot");
 out_path = "..\10_out_plot";
 
 % Site information

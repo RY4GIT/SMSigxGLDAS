@@ -1,6 +1,9 @@
 *.png
+*.svg
+*.jpeg
 *.xml
 *.pdf
+*.xlsx
 
 0_data_raw/*
 2_data_selected/*
@@ -45,9 +48,9 @@
 !4_data/USCRN/combined/average.csv
 !4_data/USCRN/combined_weighted/average.csv
 
-6_out_stat/*.zip
-8_out_plot/*
-9_figures/*
+6_out_sigs/*.zip
+10_out_plot/*
+11_figures/*
 doc/*
 GIS/*
 ref/*

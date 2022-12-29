@@ -93,6 +93,10 @@ for s = 1:size(sigT,1)
                 'MarkerFaceColor', c, 'MarkerEdgeColor', e, 'MarkerFaceAlpha', a, ...
                 'DisplayName', disp_name);
             hold on;
+            hline = refline(1,0);
+            hline.Color = 'k';
+            hline.LineStyle = '--';
+            hline.DisplayName = '1:1 line';
 
         end
 

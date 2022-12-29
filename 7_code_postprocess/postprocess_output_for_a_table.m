@@ -10,7 +10,7 @@ out_path = "..\8_out_stat";
 
 % Site information
 networks = ["Oznet"; "USCRN"; "SCAN"];
-data_type = "combined_weighted";
+data_type = "combined"; %"combined_weighted"; "combined"
 output_version = "20221224";
 
 % read the format for the plots
@@ -106,7 +106,7 @@ for s = 1:4
     
 end
 
-writetable(temps,fullfile(out_path, sprintf('seasonsig_results_in_table_%s.xlsx', data_type)))
+writetable(temps,fullfile(out_path, sprintf('seasonsig_results_in_table_%s.csv', data_type)))
 
 end
 

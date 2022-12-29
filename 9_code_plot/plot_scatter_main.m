@@ -5,7 +5,12 @@ close all; clear all;
 
 % Set path
 cd("G:\Shared drives\Ryoko and Hilary\SMSigxgldas\9_code_plot");
-out_path = "..\10_out_plot";
+out_sigs_version = '20221224';
+data_type = 'combined_weighted';
+out_path = fullfile("..\10_out_plot", data_type);
+if ~exist(out_path, 'dir')
+   mkdir(out_path)
+end
 
 % Site information
 networks = ["Oznet"; "USCRN"; "SCAN"];
@@ -18,11 +23,11 @@ sigT = readtable('sig_format.csv','HeaderLines',0,'Delimiter',',');
 for s = 1:size(sigT,1)
     
     figure(s);
-    set(gcf, 'Position',[100 100 400 500]);
-    set(gca,'fontsize',16)
+    set(gcf, 'Position',[100 100 200*1.5 250*1.5]);
+    set(gca,'fontsize',25)
     
     for i = 1:length(networks)
-        in_path = fullfile("..\8_out_stat", networks(i));
+        in_path = fullfile("..\6_out_sigs", out_sigs_version, data_type, networks(i));
         T = readtable(fullfile(in_path, sprintf('%s.csv', string(sigT.sig_abb(s)))), 'Delimiter', ',');
         
         if s <= 4
@@ -44,13 +49,13 @@ for s = 1:size(sigT,1)
     
         switch networks(i)
             case "Oznet"
-                depth = [2.5; 10];
+                depth = [2.5]; %[2.5; 10];
                 c = [117 112 179]./225;
             case "USCRN"
-                depth = [5; 10];
+                depth = [5]; %[5; 10];
                 c = [27,158,119]./225;
             case "SCAN"
-                depth = [5.08; 10];
+                depth = [5.08]; %[5.08; 10];
                 c = [217,95,2]./225;
         end
         
@@ -73,7 +78,7 @@ for s = 1:size(sigT,1)
                 a = 1;
             else
                 e = 'w';
-                a = (10 - depth(k))/10;
+                a = 0.7; %(10 - depth(k))/10;
             end
 
             % Create scatter plot & display correlation coefficient

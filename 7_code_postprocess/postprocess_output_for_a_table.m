@@ -1,18 +1,20 @@
 %% Run this, and them plot_scatter_main.m
-function [] = stat_main()
+function [] = postprocess_output_for_a_table()
 
 %% Preparation
 close all; clear all;
 
 % Set path
-cd("G:\Shared drives\Ryoko and Hilary\SMSigxgldas\7_code_plot");
-out_path = "..\10_out_plot";
+cd("G:\Shared drives\Ryoko and Hilary\SMSigxgldas\7_code_postprocess");
+out_path = "..\8_out_stat";
 
 % Site information
 networks = ["Oznet"; "USCRN"; "SCAN"];
+data_type = "combined_weighted";
+output_version = "20221224";
 
 % read the format for the plots
-sigT = readtable('sig_format.csv','HeaderLines',0,'Delimiter',',');
+sigT = readtable('..\9_code_plot\sig_format.csv','HeaderLines',0,'Delimiter',',');
 
 %
 sz = [8 6];
@@ -45,7 +47,7 @@ for s = 1:4
     end
     
     for i = 1:length(networks)
-        in_path = fullfile("..\8_out_stat", networks(i));
+        in_path = fullfile("..\6_out_sigs", output_version, data_type, networks(i));
         T = readtable(fullfile(in_path, sprintf('%s.csv', string(sigT.sig_abb(s)))), 'Delimiter', ',');
         
         T.diff = T.gldas - T.insitu;
@@ -67,7 +69,7 @@ for s = 1:4
         end
         
         for k = 1:length(depth)
-            nrow = nrow + 1
+            nrow = nrow + 1;
             % get the corresponding data
             selected = (T.depth == depth(k));
             
@@ -104,7 +106,7 @@ for s = 1:4
     
 end
 
-writetable(temps,fullfile(out_path, 'stat.xlsx'))
+writetable(temps,fullfile(out_path, sprintf('seasonsig_results_in_table_%s.xlsx', data_type)))
 
 end
 
